@@ -4,7 +4,16 @@ public abstract class Usuario {
 	private String nombreuser;
 	private String contrasena;
 	private boolean esAdmin = false;
+	private boolean activo = false;
 	
+	public boolean isActivo() {
+		return activo;
+	}
+
+	public void setActivo(boolean activo) {
+		this.activo = activo;
+	}
+
 	public Usuario(String nombreuser, String contrasena) {
 		this.nombreuser = nombreuser;
 		this.contrasena = contrasena;

@@ -7,18 +7,26 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import Controlador.Navegador;
+import Modelo.Admin;
+import Modelo.GestorUsuarios;
+import Modelo.Usuario;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class VentanaPrincipal extends JFrame {
 	private Navegador n = new Navegador();
+	private static GestorUsuarios gs = new GestorUsuarios();
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-
+	private Usuario user = gs.Activo();
 	/**
 	 * Launch the application.
 	 */
@@ -39,6 +47,12 @@ public class VentanaPrincipal extends JFrame {
 	 * Create the frame.
 	 */
 	public VentanaPrincipal() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				user.setActivo(false);
+			}
+		});
 		setTitle("principal");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -55,7 +69,10 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemAnadir = new JMenuItem("Añadir");
 		ItemAnadir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				abrirVentanaAnadir("cliente");
+				if (tienePermiso()) {
+					abrirVentanaAnadir("cliente");
+				}
+				
 			}
 		});
 		mnGestionCliente.add(ItemAnadir);
@@ -69,7 +86,10 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemMostrar = new JMenuItem("Mostrar");
 		ItemMostrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				abrirVentanaMostrar("cliente");
+				if (tienePermiso()) {
+					abrirVentanaMostrar("cliente");				
+				}
+				
 			}
 		});
 		mnGestionCliente.add(ItemMostrar);
@@ -82,7 +102,9 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemAnadirE = new JMenuItem("Añadir");
 		ItemAnadirE.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				abrirVentanaAnadir("especialista");
+				if (tienePermiso()) {
+					abrirVentanaAnadir("especialista");
+				}
 			}
 		});
 		mnGestionEspecialista.add(ItemAnadirE);
@@ -96,7 +118,7 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemMostrarE = new JMenuItem("Mostrar");
 		ItemMostrarE.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				abrirVentanaMostrar("especialista");
+					abrirVentanaMostrar("especialista");
 			}
 		});
 		mnGestionEspecialista.add(ItemMostrarE);
@@ -109,7 +131,10 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemAnadirC = new JMenuItem("Añadir");
 		ItemAnadirC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				abrirVentanaAnadir("citas");
+				if (tienePermiso()) {
+					abrirVentanaAnadir("citas");
+				}
+				
 			}
 		});
 		mnGestionCitas.add(ItemAnadirC);
@@ -123,7 +148,7 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemMostrarC = new JMenuItem("Mostrar");
 		ItemMostrarC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				abrirVentanaMostrar("citas");
+					abrirVentanaMostrar("citas");
 			}
 		});
 		mnGestionCitas.add(ItemMostrarC);
@@ -153,6 +178,16 @@ public class VentanaPrincipal extends JFrame {
 		panel.setBounds(0, 0, 434, 239);
 		contentPane.add(panel);
 		
+		
+	}
+	private boolean tienePermiso() {
+		if (user instanceof Admin) {
+			return true;
+		}else {
+			JOptionPane.showMessageDialog(null,"Necesita permisos para realizar esta acción", 
+	                "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 		
 	}
 	

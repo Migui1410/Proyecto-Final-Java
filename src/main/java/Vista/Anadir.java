@@ -39,6 +39,7 @@ public class Anadir extends JFrame {
 				nav.dispatcher("principal", true);
 			}
 		});
+		
 		this.tituloV = titulo;
 		setTitle("anadir" + titulo);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
