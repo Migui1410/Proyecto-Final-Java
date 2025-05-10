@@ -1,8 +1,10 @@
 package Modelo;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Cita {
+	private ArrayList<Cliente> listacitas = new ArrayList<>();
     private int id;
     private LocalDate fecha;
 
@@ -10,8 +12,19 @@ public class Cita {
         this.id = id;
         this.fecha = fecha;
     }
+    public int longi() {
+		return listacitas.size();
+	}
 
-    // Getters y Setters
+    public ArrayList<Cliente> getListacitas() {
+		return listacitas;
+	}
+
+	public void setListacitas(ArrayList<Cliente> listacitas) {
+		this.listacitas = listacitas;
+	}
+
+	// Getters y Setters
     public int getId() {
         return id;
     }

@@ -1,11 +1,14 @@
 package Modelo;
 
+import java.util.ArrayList;
+
 public class Especialista {
     private String dni;
     private String nombre;
     private String apellidos;
     private double sueldo;
     private int numCon;
+    private ArrayList<Cliente> listaesp = new ArrayList<>();
 
     public Especialista(String dni, String nombre, String apellidos, double sueldo, int numCon) {
         this.dni = dni;
@@ -14,8 +17,19 @@ public class Especialista {
         this.sueldo = sueldo;
         this.numCon = numCon;
     }
+    public int longi() {
+		return listaesp.size();
+	}
 
-    // Getters y Setters
+    public ArrayList<Cliente> getListaesp() {
+		return listaesp;
+	}
+
+	public void setListaesp(ArrayList<Cliente> listaesp) {
+		this.listaesp = listaesp;
+	}
+
+	// Getters y Setters
     public String getDni() {
         return dni;
     }
