@@ -4,19 +4,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Cliente {
-	private ArrayList<Cliente> listacli = new ArrayList<>();
+	private static ArrayList<Cliente> listacli = new ArrayList<>();
     private String dni;
     private String nombre;
     private String apellidos;
     private LocalDate fechaNacimiento;
 
-    public int longi() {
-		return listacli.size();
-	}
-    public ArrayList<Cliente> getListacli() {
+   public void agregarCliente(Cliente c) {
+	   listacli.add(c);
+   }
+    
+    public static ArrayList<Cliente> getListacli() {
 		return listacli;
 	}
-
    
 	public void setListacli(ArrayList<Cliente> listacli) {
 		this.listacli = listacli;
