@@ -30,39 +30,57 @@ public class VentanaPrincipal extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					VentanaPrincipal frame = new VentanaPrincipal();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the frame.
-	 */
+	
 	public VentanaPrincipal() {
+		Estilo.aplicarFuenteGlobal();
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				user.setActivo(false);
+				Usuario user = gs.Activo();
+				 if (user != null) {
+					 gs.cerrarSesion(user);
+		            }
+				
+			}
+			public void windowClosed(WindowEvent e) {
+				n.dispatcher("iniciosesion", true);
+				
 			}
 		});
+		this.user = user;
 		setTitle("principal");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		
+		
+		
+		menu(tienePermiso());
+			
+		}
+		
+	public void actualizarUsuarioActivo() {
+	    this.user = gs.Activo();
+	    menu(tienePermiso());
+	}
+	
+	private boolean tienePermiso() {
+		if (user instanceof Admin) {
+			return true;
+		}else {
+			JOptionPane.showMessageDialog(null,"Necesita permisos para realizar esta acción", 
+	                "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
+	}
+	
+	private void menu(boolean b ) {
+		setJMenuBar(null);
+		if (b) {
+		/*---------------Gestion Clientes-------------------*/
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setToolTipText("Busqueda");
 		setJMenuBar(menuBar);
-		
-		
-		/*---------------Gestion Clientes-------------------*/
 		JMenu mnGestionCliente = new JMenu("Gestion Cliente");
 		menuBar.add(mnGestionCliente);
 		
@@ -177,20 +195,32 @@ public class VentanaPrincipal extends JFrame {
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 434, 239);
 		contentPane.add(panel);
+		Estilo.aplicarEstiloBasico(contentPane);
 		
-		
-	}
-	private boolean tienePermiso() {
-		if (user instanceof Admin) {
-			return true;
 		}else {
-			JOptionPane.showMessageDialog(null,"Necesita permisos para realizar esta acción", 
-	                "Error", JOptionPane.ERROR_MESSAGE);
-			return false;
+			JMenuBar menuBar1 = new JMenuBar();
+			menuBar1.setToolTipText("Busqueda");
+			setJMenuBar(menuBar1);
+			
+			JMenu mnGestionMisCitas = new JMenu("Mostrar mis citas");
+			mnGestionMisCitas.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+						abrirVentanaMostrar("citas");
+				}
+			});
+			menuBar1.add(mnGestionMisCitas);
+			
+			JMenu mnMostrarEspecialista = new JMenu("Mostrar Especialista");
+			menuBar1.add(mnMostrarEspecialista);
+			
+			JMenu mnBuscar = new JMenu("Buscar");
+			menuBar1.add(mnBuscar);
+			
+			
+			Estilo.aplicarEstiloBasico(contentPane);
 		}
 		
 	}
-	
 	private void abrirVentanaAnadir(String tipo) {
 	    String titulo = tipo.toLowerCase(); 
 	    if(!n.existe("anadir" + titulo)) {
@@ -204,7 +234,7 @@ public class VentanaPrincipal extends JFrame {
 	private void abrirVentanaMostrar(String tipo) {
 	    String titulo = tipo.toLowerCase(); 
 	    if(!n.existe("mostrar" + titulo)) {
-	    	n.crearVentana(new Mostrar(titulo)); 
+	    	n.crearVentana(new Mostrar(titulo,user)); 
 	        n.dispatcher("mostrar"+titulo, true);
 	    }else {
 	        n.dispatcher("mostrar"+titulo, true);

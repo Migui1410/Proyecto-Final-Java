@@ -3,33 +3,39 @@ package Modelo;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class Cliente {
-	private static ArrayList<Cliente> listacli = new ArrayList<>();
+
+public class Cliente extends Usuario {
+    private static ArrayList<Cliente> listacli = new ArrayList<>();
     private String dni;
     private String nombre;
     private String apellidos;
     private LocalDate fechaNacimiento;
 
-   public void agregarCliente(Cliente c) {
-	   listacli.add(c);
-   }
-    
-    public static ArrayList<Cliente> getListacli() {
-		return listacli;
-	}
-   
-	public void setListacli(ArrayList<Cliente> listacli) {
-		this.listacli = listacli;
-	}
-
-	public Cliente(String dni, String nombre, String apellidos, LocalDate fechaNacimiento) {
+    public Cliente(String nombreUsuario, String contrasena, String dni, String nombre, String apellidos, LocalDate fechaNacimiento) {
+        super(nombreUsuario, contrasena);  
         this.dni = dni;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    // Getters y Setters
+    public void agregarCliente(Cliente c) {
+        listacli.add(c);
+    }
+
+    public static ArrayList<Cliente> getListacli() {
+        return listacli;
+    }
+
+    public void setListacli(ArrayList<Cliente> listacli) {
+        Cliente.listacli = listacli;
+    }
+
+    @Override
+    public boolean esAdmin() {
+        return false;
+    }
+
     public String getDni() {
         return dni;
     }
@@ -62,3 +68,5 @@ public class Cliente {
         this.fechaNacimiento = fechaNacimiento;
     }
 }
+
+    

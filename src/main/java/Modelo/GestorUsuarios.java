@@ -23,15 +23,19 @@ public class GestorUsuarios {
 		usuarios.add(usuario);
 	}
 	
-	public static Usuario Activo() {
-		Usuario c = null;
-		for (Usuario us : usuarios) {
-			if (us.isActivo()) {
-				us.setActivo(false);
-				return c = us;
-			}
-		}
-		return c = null;
-	}
+	 public static Usuario Activo() {
+	        for (Usuario us : usuarios) {
+	            if (us.isActivo()) {
+	                return us;
+	            }
+	        }
+	        return null; 
+	    }
+	 
+	 public static void cerrarSesion(Usuario usuario) {
+	        if (usuario != null) {
+	            usuario.setActivo(false);
+	        }
+	    }
 	
 }

@@ -40,29 +40,30 @@ public class Anadir extends JFrame {
 			}
 		});
 		
-		this.tituloV = titulo;
-		setTitle("anadir" + titulo);
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-        
-		
-		JPanel panelFormulario = new JPanel();
-		panelFormulario.setBounds(0, 25, 434, 201);
-		contentPane.add(panelFormulario);
-		panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
-		
-		JLabel lblTituloAnadir = new JLabel();
-		lblTituloAnadir.setText("Añadir " + tituloV);
-		lblTituloAnadir.setBounds(166, 1, 135, 30);
-		contentPane.add(lblTituloAnadir);
-		
+	    Estilo.aplicarFuenteGlobal(); 
+
+	    this.tituloV = titulo;
+	    setTitle("anadir" + titulo);
+	    setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+	    setBounds(100, 100, 450, 300);
+
+	    contentPane = new JPanel();
+	    contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+	    Estilo.aplicarEstiloBasico(contentPane); 
+	    setContentPane(contentPane);
+	    contentPane.setLayout(null);
+
+	    JPanel panelFormulario = new JPanel();
+	    panelFormulario.setBounds(0, 25, 434, 201);
+	    Estilo.aplicarEstiloBasico(panelFormulario); 
+	    contentPane.add(panelFormulario);
+	    panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
+
+	    JLabel lblTituloAnadir = new JLabel("Añadir " + tituloV);
+	    lblTituloAnadir.setBounds(166, 1, 135, 30);
+	    Estilo.estilizarEtiqueta(lblTituloAnadir, true); 
+	    contentPane.add(lblTituloAnadir);
+
 		JButton btnCrear = new JButton("Crear");
 		
 		btnCrear.setBounds(295, 227, 89, 23);
@@ -87,8 +88,8 @@ public class Anadir extends JFrame {
 						String apellido = camposTexto.get(2).getText();
 						LocalDate fecha = LocalDate.parse(camposTexto.get(3).getText());
 						
-						Cliente c = new Cliente(dni,nombre,apellido,fecha);
-						c.agregarCliente(c);
+						//Cliente c = new Cliente(dni,nombre,apellido,fecha);
+						//c.agregarCliente(c);
 						 for (JTextField campo : camposTexto) {
 				                campo.setText("");
 				            }
@@ -143,6 +144,8 @@ public class Anadir extends JFrame {
 		};
 	}
 
+	
+	
 	private void addCampo(JPanel formularioPanel, String etiqueta) {
 		JLabel lb = new JLabel(etiqueta);
 		JTextField txt = new JTextField();

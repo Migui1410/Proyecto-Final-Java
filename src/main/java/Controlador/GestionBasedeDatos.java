@@ -14,18 +14,17 @@ public class GestionBasedeDatos {
 	prueba();	
 	}
 	
-	public static void prueba() {
-		try(Connection cn = DriverManager.getConnection(url,user,pwd)){
-			String sql = "Select * from especialista";
-			Statement st = cn.createStatement();
-			ResultSet rs = st.executeQuery(sql);
-			while (rs.next()) {
-				System.out.println(rs.getString("nombre"));
-			}
+	public static Connection prueba() {
+		Connection cn = null;
+		try{
+			cn = DriverManager.getConnection(url,user,pwd);
+			System.out.println("Conexion establecida");
 		}catch(SQLException ex) {
 			ex.printStackTrace();
 		}
+		return cn;
 	}
+
 	
 }
 

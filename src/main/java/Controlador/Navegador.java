@@ -30,5 +30,13 @@ public class Navegador {
 		return false;
 	}
 	
+	public JFrame getVentana(String nombre) {
+	    for (JFrame v : ventanas) {
+	        if (v.getTitle().equalsIgnoreCase(nombre)) {
+	            return v;
+	        }
+	    }
+	    return null;
+	}
 }
 
