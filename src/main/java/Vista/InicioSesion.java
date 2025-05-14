@@ -62,15 +62,13 @@ public class InicioSesion extends JFrame {
 
 		JButton btnIniciar = new JButton("Iniciar");
 		btnIniciar.setBounds(251, 196, 89, 23);
-		btnIniciar.setBackground(Estilo.AZUL_SUAVE);
-		btnIniciar.setForeground(Estilo.TEXTO_OSCURO);
+		Estilo.aplicarEstiloBasico(btnIniciar);
 		btnIniciar.setFocusPainted(false);
 		panel.add(btnIniciar);
 
 		JButton btnBorrar = new JButton("Borrar");
 		btnBorrar.setBounds(107, 196, 89, 23);
-		btnBorrar.setBackground(Estilo.AZUL_SUAVE);
-		btnBorrar.setForeground(Estilo.TEXTO_OSCURO);
+		Estilo.aplicarEstiloBasico(btnBorrar);
 		btnBorrar.setFocusPainted(false);
 		panel.add(btnBorrar);
 

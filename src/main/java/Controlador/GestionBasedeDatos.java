@@ -11,7 +11,7 @@ public class GestionBasedeDatos {
 	static String user ="postgres";
 	static String pwd = "postgres";
 	public static void main(String[] args) {
-	prueba();	
+		prueba();	
 	}
 	
 	public static Connection prueba() {

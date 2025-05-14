@@ -1,156 +1,211 @@
 package Vista;
 
-import java.awt.EventQueue;
-import java.awt.GridBagLayout;
-
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-import Controlador.Navegador;
-import Modelo.Cita;
-import Modelo.Cliente;
-import Modelo.Especialista;
-
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
 
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import Controlador.GestionBasedeDatos;
+import Controlador.Navegador;
+
 
 public class Anadir extends JFrame {
-	private String tituloV;
-	private JPanel contentPane;
-	private Navegador nav = new Navegador();
-	private  ArrayList<JTextField> camposTexto = new ArrayList<>();// ArrayList guardar campos textField
 
-	public Anadir(String titulo) {
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				setVisible(false);
-				nav.dispatcher("principal", true);
-			}
-		});
-		
-	    Estilo.aplicarFuenteGlobal(); 
+    private String tituloV;
+    private JPanel contentPane;
+    private Navegador nav = new Navegador();
+    private ArrayList<JTextField> camposTexto = new ArrayList<>();
+    private Navegador nv = new Navegador();
 
-	    this.tituloV = titulo;
-	    setTitle("anadir" + titulo);
-	    setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-	    setBounds(100, 100, 450, 300);
+    public Anadir(String titulo) {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                setVisible(false);
+                nav.dispatcher("principal", true);
+            }
+        });
 
-	    contentPane = new JPanel();
-	    contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-	    Estilo.aplicarEstiloBasico(contentPane); 
-	    setContentPane(contentPane);
-	    contentPane.setLayout(null);
+        this.tituloV = titulo;
+        setTitle("anadir" + titulo);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setBounds(100, 100, 500, 400);
 
-	    JPanel panelFormulario = new JPanel();
-	    panelFormulario.setBounds(0, 25, 434, 201);
-	    Estilo.aplicarEstiloBasico(panelFormulario); 
-	    contentPane.add(panelFormulario);
-	    panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(15, 15, 15, 15));
+        contentPane.setBackground(new Color(240, 248, 255));
+        contentPane.setLayout(new BorderLayout(10, 10));
+        setContentPane(contentPane);
 
-	    JLabel lblTituloAnadir = new JLabel("Añadir " + tituloV);
-	    lblTituloAnadir.setBounds(166, 1, 135, 30);
-	    Estilo.estilizarEtiqueta(lblTituloAnadir, true); 
-	    contentPane.add(lblTituloAnadir);
+        JLabel lblTitulo = new JLabel("Añadir " + tituloV);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblTitulo.setForeground(new Color(33, 37, 41));
+        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
+        contentPane.add(lblTitulo, BorderLayout.NORTH);
 
-		JButton btnCrear = new JButton("Crear");
-		
-		btnCrear.setBounds(295, 227, 89, 23);
-		contentPane.add(btnCrear);
-		
-		JButton btnVolver = new JButton("Volver");
-		btnVolver.setBounds(58, 227, 89, 23);
-		contentPane.add(btnVolver);
-		
-		
-		
-		switch (tituloV.toLowerCase()) {
-			case "cliente":
-				addCampo(panelFormulario,"DNI: ");
-				addCampo(panelFormulario,"Nombre: ");
-				addCampo(panelFormulario,"Apellido: ");
-				addCampo(panelFormulario,"Fecha de Nacimiento: ");
-				btnCrear.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String dni = camposTexto.get(0).getText();
-						String nombre = camposTexto.get(1).getText();
-						String apellido = camposTexto.get(2).getText();
-						LocalDate fecha = LocalDate.parse(camposTexto.get(3).getText());
-						
-						//Cliente c = new Cliente(dni,nombre,apellido,fecha);
-						//c.agregarCliente(c);
-						 for (JTextField campo : camposTexto) {
-				                campo.setText("");
-				            }
-					}
-				});
-				break;
-			case "especialista":
-				addCampo(panelFormulario,"DNI: ");
-				addCampo(panelFormulario,"Nombre: ");
-				addCampo(panelFormulario,"Apellido: ");
-				addCampo(panelFormulario,"Sueldo: ");
-				addCampo(panelFormulario,"Num Consulta: ");
-				btnCrear.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String dni = camposTexto.get(0).getText();
-						String nombre = camposTexto.get(1).getText();
-						String apellido = camposTexto.get(2).getText();
-						double sueldo = Double.parseDouble(camposTexto.get(3).getText());
-						int numcon = Integer.parseInt(camposTexto.get(4).getText());
-						
-						Especialista es = new Especialista(dni,nombre,apellido,sueldo,numcon);
-						es.agregarEsp(es);
-						 for (JTextField campo : camposTexto) {
-				                campo.setText("");
-				            }
-					}
-				});
-				break;
-			case "citas":
-				addCampo(panelFormulario,"ID: ");
-				addCampo(panelFormulario,"Fecha: ");
-				addCampo(panelFormulario,"Nombre Cliente: ");
-				addCampo(panelFormulario,"Especialista: ");
-				btnCrear.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						int id = Integer.parseInt(camposTexto.get(0).getText());
-						LocalDate fecha = LocalDate.parse(camposTexto.get(1).getText());
-						String nombrec = camposTexto.get(2).getText();
-						String nombres = camposTexto.get(3).getText();
-						
-						Cita c = new Cita(id,fecha,nombrec,nombres);
-						c.agregarCita(c);
-						 for (JTextField campo : camposTexto) {
-				                campo.setText("");
-				            }
-					}
-				});
-				break;
-		default:
-			System.out.println("Ventana no encontrada");
-			break;
-		};
-	}
+        // Panel formulario
+        JPanel panelFormulario = new JPanel();
+        panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
+        panelFormulario.setBackground(new Color(240, 248, 255));
+        contentPane.add(panelFormulario, BorderLayout.CENTER);
 
+        JButton btnCrear = new JButton("Crear");
+        JButton btnVolver = new JButton("Volver");
+        btnCrear.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnVolver.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelBotones.setBackground(new Color(240, 248, 255));
+        panelBotones.add(btnVolver);
+        panelBotones.add(btnCrear);
+        contentPane.add(panelBotones, BorderLayout.SOUTH);
+
+        try {
+            // Obtener clase de entidad dinámicamente 
+            Class<?> claseEntidad = getClaseEntidad(tituloV);
+            if (claseEntidad != null) {
+                Field[] campos = claseEntidad.getDeclaredFields();
+                for (Field campo : campos) {
+                    addCampo(panelFormulario, campo.getName());
+                }
+
+                btnCrear.addActionListener(e -> {
+                    try {
+                        Connection conexion = GestionBasedeDatos.prueba();
+                        if (tituloV.equalsIgnoreCase("cita")) {
+                        	if(!nv.existe("anadircitanueva")) {
+                    	    	nv.crearVentana(new AnadirCitaForm()); 
+                    	        nv.dispatcher("anadircitanueva", true);
+                    	    }else {
+                    	        nv.dispatcher("anadircitanueva", true);
+
+                    	    }
+                        } else {
+	                        // Crear el objeto de la clase correspondiente
+	                        Object entidad = claseEntidad.getConstructor().newInstance();
 	
+	                        for (int i = 0; i < campos.length; i++) {
+	                            String nombreCampo = campos[i].getName();
+	                            String valorCampo = camposTexto.get(i).getText();
 	
-	private void addCampo(JPanel formularioPanel, String etiqueta) {
-		JLabel lb = new JLabel(etiqueta);
-		JTextField txt = new JTextField();
-		formularioPanel.add(lb);
-		formularioPanel.add(txt);
-		camposTexto.add(txt);
-	}
+	                            Field campo = claseEntidad.getDeclaredField(nombreCampo);
+	                            campo.setAccessible(true);  //Poder modificar campos privados
+	                            if (campo.getType() == String.class) {
+	                                campo.set(entidad, valorCampo);
+	                            } else if (campo.getType() == int.class) {
+	                                campo.set(entidad, Integer.parseInt(valorCampo));
+	                            } else if (campo.getType() == double.class) {
+	                                campo.set(entidad, Double.parseDouble(valorCampo));
+	                            } else if (campo.getType() == LocalDate.class) {
+	                                campo.set(entidad, LocalDate.parse(valorCampo));
+	                            }
+	                        }
+	
+	                        // Crear consulta de inserción
+	                        StringBuilder sql = new StringBuilder();
+	                        sql.append("INSERT INTO ").append(tituloV.toLowerCase()).append(" (");
+	
+	                        StringBuilder valores = new StringBuilder();
+	                        for (int i = 0; i < campos.length; i++) {
+	                            sql.append(campos[i].getName());
+	                            valores.append("?");
+	                            if (i < campos.length - 1) {
+	                                sql.append(", ");
+	                                valores.append(", ");
+	                            }
+	                        }
+	                        sql.append(") VALUES (").append(valores).append(")");
+	
+	                        // Asignar los valores
+	                        PreparedStatement ps = conexion.prepareStatement(sql.toString());
+	                        for (int i = 0; i < campos.length; i++) {
+	                            String valor = camposTexto.get(i).getText();
+	                            if (campos[i].getType() == String.class) {
+	                                ps.setString(i + 1, valor);
+	                            } else if (campos[i].getType() == int.class) {
+	                                ps.setInt(i + 1, Integer.parseInt(valor));
+	                            } else if (campos[i].getType() == double.class) {
+	                                ps.setDouble(i + 1, Double.parseDouble(valor));
+	                            } else if (campos[i].getType() == LocalDate.class) {
+	                                ps.setDate(i + 1, java.sql.Date.valueOf(valor));
+	                            }
+	                        }
+	
+	                        ps.executeUpdate();// Ejecutar consulta inserción
+	
+	                        
+	                        ps.close();// Cerrar conexión
+	                        conexion.close();
+                        }
+
+                        JOptionPane.showMessageDialog(this, "Datos insertados correctamente.","Correcto",JOptionPane.INFORMATION_MESSAGE);
+                        limpiarCampos();
+                    } catch (Exception ex) {
+                    	ex.printStackTrace();
+                    	System.out.println(tituloV);
+                        JOptionPane.showMessageDialog(this, "Error al insertar los datos.","Error",JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } else {
+                System.out.println("Entidad desconocida");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        btnVolver.addActionListener(e -> {
+            setVisible(false);
+            nav.dispatcher("principal", true);
+        });
+    }
+
+    private Class<?> getClaseEntidad(String titulo) {
+        try {
+            String nombreClase = "Modelo." + titulo.substring(0, 1).toUpperCase() + titulo.substring(1).toLowerCase();
+            return Class.forName(nombreClase);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    private void addCampo(JPanel panel, String etiqueta) {
+        JPanel fila = new JPanel();
+        fila.setLayout(new BorderLayout(5, 5));
+        fila.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        fila.setBackground(new Color(240, 248, 255));
+
+        JLabel lb = new JLabel(etiqueta);
+        lb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lb.setPreferredSize(new Dimension(180, 25));
+
+        JTextField txt = new JTextField();
+        txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        fila.add(lb, BorderLayout.WEST);
+        fila.add(txt, BorderLayout.CENTER);
+
+        panel.add(fila);
+        panel.add(Box.createVerticalStrut(10));
+
+        camposTexto.add(txt);
+    }
+
+    private void limpiarCampos() {
+        for (JTextField campo : camposTexto) {
+            campo.setText("");
+        }
+    }
+    
+    
+    
 }

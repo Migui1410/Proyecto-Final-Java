@@ -2,6 +2,7 @@ package Vista;
 
 import java.awt.EventQueue;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -20,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JLabel;
 
 public class VentanaPrincipal extends JFrame {
 	private Navegador n = new Navegador();
@@ -51,6 +53,11 @@ public class VentanaPrincipal extends JFrame {
 		setTitle("principal");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
+		getContentPane().setLayout(null);
+		
+		JLabel lblImagen = new JLabel(new ImageIcon("/ProyectoFinal/src/main/java/Img/logo.png"));
+		lblImagen.setBounds(104, 83, 46, 14);
+		getContentPane().add(lblImagen);
 		
 		
 		
@@ -150,7 +157,7 @@ public class VentanaPrincipal extends JFrame {
 		ItemAnadirC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (tienePermiso()) {
-					abrirVentanaAnadir("citas");
+					abrirVentanaAnadir("cita");
 				}
 				
 			}
@@ -166,7 +173,7 @@ public class VentanaPrincipal extends JFrame {
 		JMenuItem ItemMostrarC = new JMenuItem("Mostrar");
 		ItemMostrarC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					abrirVentanaMostrar("citas");
+					abrirVentanaMostrar("solicitar");
 			}
 		});
 		mnGestionCitas.add(ItemMostrarC);
@@ -205,7 +212,7 @@ public class VentanaPrincipal extends JFrame {
 			JMenu mnGestionMisCitas = new JMenu("Mostrar mis citas");
 			mnGestionMisCitas.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-						abrirVentanaMostrar("citas");
+						abrirVentanaMostrar("cita");
 				}
 			});
 			menuBar1.add(mnGestionMisCitas);

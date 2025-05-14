@@ -23,6 +23,9 @@ import Modelo.Usuario;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.Connection;
@@ -64,26 +67,37 @@ public class Mostrar extends JFrame {
         setSize(650, 450);
         setLocationRelativeTo(null);
 
-        // Panel principal con BorderLayout
+        // Panel principal
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
         contentPane.setBorder(new EmptyBorder(15, 15, 15, 15));
+        Estilo.aplicarEstiloBasico(contentPane);
         setContentPane(contentPane);
 
-        // Título centrado
         JLabel lblTitulo = new JLabel("Mostrar " + tipo, JLabel.CENTER);
         lblTitulo.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
+        Estilo.estilizarEtiqueta(lblTitulo,true);
         contentPane.add(lblTitulo, BorderLayout.NORTH);
         
         configurarModeloTabla(tipo,userAct);
         tableMostrar = new JTable(model);
+        Estilo.estilizarTabla(tableMostrar);
         tableMostrar.setAutoCreateRowSorter(true);
         JScrollPane scrollPane = new JScrollPane(tableMostrar);
         contentPane.add(scrollPane, BorderLayout.CENTER);
+        
+     // Panel Botones
+        JPanel panelBotones = new JPanel();
+        Estilo.aplicarEstiloBasico(panelBotones);
 	    
-	    /*JButton btnNewButton_1 = new JButton("New button");
-	    btnNewButton_1.setBounds(289, 218, 89, 32);
-	    contentPane.add(btnNewButton_1);
-	    */
+        JButton btnEditar = new JButton("Editar");
+        btnEditar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+               
+            }
+        });
+
+        panelBotones.add(btnEditar);
+        contentPane.add(panelBotones, BorderLayout.SOUTH);
 	    
 	}
 	
@@ -92,15 +106,22 @@ public class Mostrar extends JFrame {
 	        case "cliente":
 	        	if (user instanceof Admin) {
 	        		 return "SELECT * FROM cliente";
-	        	}else if (user instanceof Cliente) {
-	        	    String dni = ((Cliente) user).getDni();
-	        	    return "Select* FROM Solicitar where dni_cliente ="+ dni + "";
-	        	}	
+	        	}/*else{
+	        		String dni = ((Cliente) user).getDni();
+	        		PreparedStatement st = conexion.prepareStatement("SELECT * FROM Solicitar WHERE dni_cliente = ?");
+	                st.setString(1, dni); // Asigna el valor al primer parámetro (índice 1)
+	                return st;
+	        	}*/
+                
 	           
 	        case "especialista":
 	            return "SELECT * FROM especialista";
-	        case "citas":
-	            return "SELECT * FROM cita";
+	        case "cita":
+	            return 
+	                "SELECT id_cita, c.nombre AS \"Nombre Cliente\", e.nombre AS \"Nombre Especialista\", ci.fecha " +
+	                "FROM solicitar s, cliente c, especialista e, cita ci " +
+	                "WHERE s.id_cita = ci.id AND s.dni_cliente = c.dni AND s.dni_esp = e.dni"
+	            ;
 	        default:
 	            throw new IllegalArgumentException("Consulta no definida para tipo: " + item);
 	    }
@@ -159,4 +180,6 @@ public class Mostrar extends JFrame {
 	        dispose();
 	    }
 	}
+	
+
 }

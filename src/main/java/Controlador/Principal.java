@@ -14,6 +14,7 @@ public class Principal {
 		gs.agregarUser(new UsuarioNormal("Pepe","1234"));
 		gs.agregarUser(new UsuarioNormal("Paco","1234"));
 		
+		
 		nv.crearVentana(new InicioSesion());
 		nv.dispatcher("iniciosesion", true);
 	

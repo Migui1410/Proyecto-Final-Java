@@ -4,37 +4,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 
-public class Cliente extends Usuario {
-    private static ArrayList<Cliente> listacli = new ArrayList<>();
+public class Cliente {
     private String dni;
     private String nombre;
     private String apellidos;
-    private LocalDate fechaNacimiento;
-
-    public Cliente(String nombreUsuario, String contrasena, String dni, String nombre, String apellidos, LocalDate fechaNacimiento) {
-        super(nombreUsuario, contrasena);  
-        this.dni = dni;
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public void agregarCliente(Cliente c) {
-        listacli.add(c);
-    }
-
-    public static ArrayList<Cliente> getListacli() {
-        return listacli;
-    }
-
-    public void setListacli(ArrayList<Cliente> listacli) {
-        Cliente.listacli = listacli;
-    }
-
-    @Override
-    public boolean esAdmin() {
-        return false;
-    }
+    private LocalDate fecha_nacimiento;
 
     public String getDni() {
         return dni;
@@ -61,11 +35,11 @@ public class Cliente extends Usuario {
     }
 
     public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
+        return fecha_nacimiento;
     }
 
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
+        this.fecha_nacimiento = fechaNacimiento;
     }
 }
 
