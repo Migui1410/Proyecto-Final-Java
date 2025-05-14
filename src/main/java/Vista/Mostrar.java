@@ -116,7 +116,7 @@ public class Mostrar extends JFrame {
 	           
 	        case "especialista":
 	            return "SELECT * FROM especialista";
-	        case "cita":
+	        case "solicitar":
 	            return 
 	                "SELECT id_cita, c.nombre AS \"Nombre Cliente\", e.nombre AS \"Nombre Especialista\", ci.fecha " +
 	                "FROM solicitar s, cliente c, especialista e, cita ci " +
@@ -127,7 +127,7 @@ public class Mostrar extends JFrame {
 	    }
 	}
 	
-	public List<Solicitar> obtenerCitaPorCliente(String dniCliente) {
+	/*public List<Solicitar> obtenerCitaPorCliente(String dniCliente) {
 	    List<Solicitar> lista = new ArrayList<>();
 
 	    String sql = "SELECT * FROM SOLICITAR WHERE dni_cliente = ?";
@@ -150,7 +150,7 @@ public class Mostrar extends JFrame {
 	    }
 
 	    return lista;
-	}	
+	}	*/
 
 	public void actualizarTabla() {
 	    String query = configurarModeloTabla(tituloV,userAct); 

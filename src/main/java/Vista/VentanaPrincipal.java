@@ -157,7 +157,7 @@ public class VentanaPrincipal extends JFrame {
 		ItemAnadirC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (tienePermiso()) {
-					abrirVentanaAnadir("cita");
+					abrirVentanaAnadir("solicitar");
 				}
 				
 			}

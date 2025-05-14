@@ -3,12 +3,12 @@ package Modelo;
 public class Solicitar {
     private int idCita;
     private String dniCliente;
-    private String dniEspecialista;
+    private String dniEsp;
 
     public Solicitar(int idCita, String dniCliente, String dniEspecialista) {
         this.idCita = idCita;
         this.dniCliente = dniCliente;
-        this.dniEspecialista = dniEspecialista;
+        this.dniEsp = dniEspecialista;
     }
 
     // Getters y Setters
@@ -29,10 +29,10 @@ public class Solicitar {
     }
 
     public String getDniEspecialista() {
-        return dniEspecialista;
+        return dniEsp;
     }
 
     public void setDniEspecialista(String dniEspecialista) {
-        this.dniEspecialista = dniEspecialista;
+        this.dniEsp = dniEspecialista;
     }
 }
