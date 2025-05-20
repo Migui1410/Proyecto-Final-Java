@@ -2,24 +2,25 @@ package Vista;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import Controlador.GestionBasedeDatos;
 import Controlador.Navegador;
-import Modelo.GestorUsuarios;
 
 public class InicioSesion extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textFieldNombre;
-	private static GestorUsuarios gu = new GestorUsuarios();
 	private JPasswordField passwordField;
 	private Navegador nv = new Navegador();
 
 	public InicioSesion() {
-		// Aplicar fuente global
 		Estilo.aplicarFuenteGlobal();
 
 		setTitle("iniciosesion");
@@ -72,34 +73,52 @@ public class InicioSesion extends JFrame {
 		btnBorrar.setFocusPainted(false);
 		panel.add(btnBorrar);
 
-		// Lógica de los botones
 		btnIniciar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String nombre = textFieldNombre.getText();
 				String passwd = new String(passwordField.getPassword());
+				String sql = "SELECT permisos FROM users WHERE nombre = ? AND passwd = ?";
+				int permisos = -1;
+				try (Connection cn = GestionBasedeDatos.prueba();
+					     PreparedStatement st = cn.prepareStatement(sql)) {
+					     
+					    st.setString(1, nombre);
+					    st.setString(2, passwd);
 
-				if (gu.autenticar(nombre, passwd) != null) {
-					if (!nv.existe("principal")) {
-						VentanaPrincipal vp = new VentanaPrincipal();
-						nv.crearVentana(vp);
-						nv.dispatcher("principal", true);
-						vp.actualizarUsuarioActivo();
-					} else {
-						VentanaPrincipal vp = (VentanaPrincipal) nv.getVentana("principal");
-						vp.actualizarUsuarioActivo();
-						nv.dispatcher("principal", true);
+					    ResultSet rs = st.executeQuery();
+
+					    if (rs.next()) {
+					        permisos = rs.getInt("permisos");
+
+					        if (!nv.existe("principal")) {
+					            VentanaPrincipal vp = new VentanaPrincipal();
+					        	vp.actualizarUser(permisos,nombre);
+					            nv.crearVentana(vp);
+					            nv.dispatcher("principal", true);
+					        } else {
+					        	VentanaPrincipal vp = (VentanaPrincipal) nv.getVentana("principal");
+					        	vp.actualizarUser(permisos,nombre);
+					            nv.dispatcher("principal", true);
+					        }
+					        setVisible(false);
+					    } else {
+					        JOptionPane.showMessageDialog(null, "Credenciales incorrectas", 
+					                "Error", JOptionPane.ERROR_MESSAGE);
+					    }
+					} catch(Exception ex) {
+					    ex.printStackTrace();
+					    JOptionPane.showMessageDialog(null, "Error al iniciar sesión", 
+					            "Error", JOptionPane.ERROR_MESSAGE);
 					}
-					setVisible(false);
-				} else {
-					JOptionPane.showMessageDialog(null, "Credenciales incorrectas", 
-							"Error", JOptionPane.ERROR_MESSAGE);
 				}
-			}
-		});
+			});
+				
 
-		btnBorrar.addActionListener(e -> {
+		btnBorrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)  {
 			textFieldNombre.setText("");
 			passwordField.setText("");
+			}
 		});
 	}
 }

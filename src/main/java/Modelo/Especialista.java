@@ -7,30 +7,8 @@ public class Especialista {
     private String nombre;
     private String apellidos;
     private double sueldo;
-    private int numCon;
-    private static ArrayList<Especialista> listaesp = new ArrayList<>();
-
-    public void agregarEsp(Especialista es) {
-  	   listaesp.add(es);
-     }
     
-    public Especialista(String dni, String nombre, String apellidos, double sueldo, int numCon) {
-        this.dni = dni;
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.sueldo = sueldo;
-        this.numCon = numCon;
-    }
-
-
-    public static ArrayList<Especialista> getListaesp() {
-		return listaesp;
-	}
-
-	public void setListaesp(ArrayList<Especialista> listaesp) {
-		this.listaesp = listaesp;
-	}
-
+   
 	// Getters y Setters
     public String getDni() {
         return dni;
@@ -63,12 +41,6 @@ public class Especialista {
     public void setSueldo(double sueldo) {
         this.sueldo = sueldo;
     }
-
-    public int getNumCon() {
-        return numCon;
-    }
-
-    public void setNumCon(int numCon) {
-        this.numCon = numCon;
-    }
 }
+
+    

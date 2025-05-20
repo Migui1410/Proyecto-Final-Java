@@ -1,251 +1,306 @@
 package Vista;
 
-import java.awt.EventQueue;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import Controlador.Navegador;
 import Modelo.Admin;
-import Modelo.GestorUsuarios;
 import Modelo.Usuario;
 
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.JLabel;
-
 public class VentanaPrincipal extends JFrame {
-	private Navegador n = new Navegador();
-	private static GestorUsuarios gs = new GestorUsuarios();
-	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private Usuario user = gs.Activo();
-	/**
-	 * Launch the application.
-	 */
-	
-	public VentanaPrincipal() {
-		Estilo.aplicarFuenteGlobal();
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				Usuario user = gs.Activo();
-				 if (user != null) {
-					 gs.cerrarSesion(user);
-		            }
-				
-			}
-			public void windowClosed(WindowEvent e) {
-				n.dispatcher("iniciosesion", true);
-				
-			}
-		});
-		this.user = user;
-		setTitle("principal");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		getContentPane().setLayout(null);
-		
-		JLabel lblImagen = new JLabel(new ImageIcon("/ProyectoFinal/src/main/java/Img/logo.png"));
-		lblImagen.setBounds(104, 83, 46, 14);
-		getContentPane().add(lblImagen);
-		
-		
-		
-		menu(tienePermiso());
-			
-		}
-		
-	public void actualizarUsuarioActivo() {
-	    this.user = gs.Activo();
-	    menu(tienePermiso());
-	}
-	
-	private boolean tienePermiso() {
-		if (user instanceof Admin) {
-			return true;
-		}else {
-			JOptionPane.showMessageDialog(null,"Necesita permisos para realizar esta acción", 
-	                "Error", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		
-	}
-	
-	private void menu(boolean b ) {
-		setJMenuBar(null);
-		if (b) {
-		/*---------------Gestion Clientes-------------------*/
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.setToolTipText("Busqueda");
-		setJMenuBar(menuBar);
-		JMenu mnGestionCliente = new JMenu("Gestion Cliente");
-		menuBar.add(mnGestionCliente);
-		
-		JMenuItem ItemAnadir = new JMenuItem("Añadir");
-		ItemAnadir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (tienePermiso()) {
-					abrirVentanaAnadir("cliente");
-				}
-				
-			}
-		});
-		mnGestionCliente.add(ItemAnadir);
-		
-		JMenuItem ItemModificar = new JMenuItem("Modificar");
-		mnGestionCliente.add(ItemModificar);
-		
-		JMenuItem ItemEliminar = new JMenuItem("Eliminar");
-		mnGestionCliente.add(ItemEliminar);
-		
-		JMenuItem ItemMostrar = new JMenuItem("Mostrar");
-		ItemMostrar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (tienePermiso()) {
-					abrirVentanaMostrar("cliente");				
-				}
-				
-			}
-		});
-		mnGestionCliente.add(ItemMostrar);
-		
-		
-		/*---------------Gestion Especialistas-------------------*/
-		JMenu mnGestionEspecialista = new JMenu("Gestion Especilista");
-		menuBar.add(mnGestionEspecialista);
-		
-		JMenuItem ItemAnadirE = new JMenuItem("Añadir");
-		ItemAnadirE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (tienePermiso()) {
-					abrirVentanaAnadir("especialista");
-				}
-			}
-		});
-		mnGestionEspecialista.add(ItemAnadirE);
-		
-		JMenuItem ItemModificarE = new JMenuItem("Modifcar");
-		mnGestionEspecialista.add(ItemModificarE);
-		
-		JMenuItem ItemEliminarE = new JMenuItem("Eliminar");
-		mnGestionEspecialista.add(ItemEliminarE);
-		
-		JMenuItem ItemMostrarE = new JMenuItem("Mostrar");
-		ItemMostrarE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-					abrirVentanaMostrar("especialista");
-			}
-		});
-		mnGestionEspecialista.add(ItemMostrarE);
-		
-		/*---------------Gestion Citas-------------------*/
+    private Navegador n = new Navegador();
+    private static final long serialVersionUID = 1L;
+    private int p;
+    private String nom;
+    private JPanel leftPanel;
+    private JPanel rightPanel;
+    private JPanel panelCabecera;
+    private JLabel bienvenida;
 
-		JMenu mnGestionCitas = new JMenu("Gestion Citas");
-		menuBar.add(mnGestionCitas);
-		
-		JMenuItem ItemAnadirC = new JMenuItem("Añadir");
-		ItemAnadirC.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (tienePermiso()) {
-					abrirVentanaAnadir("solicitar");
-				}
-				
-			}
-		});
-		mnGestionCitas.add(ItemAnadirC);
-		
-		JMenuItem ItemModificarC = new JMenuItem("Modificar");
-		mnGestionCitas.add(ItemModificarC);
-		
-		JMenuItem ItemEliminarC = new JMenuItem("Eliminar");
-		mnGestionCitas.add(ItemEliminarC);
-		
-		JMenuItem ItemMostrarC = new JMenuItem("Mostrar");
-		ItemMostrarC.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-					abrirVentanaMostrar("solicitar");
-			}
-		});
-		mnGestionCitas.add(ItemMostrarC);
-		
-		
-		
-		/*-----------------Busqueda---------------------*/
+    private JMenuBar menuBar;
 
-		JMenu mnGestionBusqueda = new JMenu("Buscar");
-		menuBar.add(mnGestionBusqueda);
-		
-		JMenuItem BuscarCliente = new JMenuItem("Cliente");
-		mnGestionBusqueda.add(BuscarCliente);
-		
-		JMenuItem BuscarEspecialista = new JMenuItem("Especialista");
-		mnGestionBusqueda.add(BuscarEspecialista);
-		
-		JMenuItem BuscarCita = new JMenuItem("Citas");
-		mnGestionBusqueda.add(BuscarCita);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		JPanel panel = new JPanel();
-		panel.setBounds(0, 0, 434, 239);
-		contentPane.add(panel);
-		Estilo.aplicarEstiloBasico(contentPane);
-		
-		}else {
-			JMenuBar menuBar1 = new JMenuBar();
-			menuBar1.setToolTipText("Busqueda");
-			setJMenuBar(menuBar1);
-			
-			JMenu mnGestionMisCitas = new JMenu("Mostrar mis citas");
-			mnGestionMisCitas.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-						abrirVentanaMostrar("cita");
-				}
-			});
-			menuBar1.add(mnGestionMisCitas);
-			
-			JMenu mnMostrarEspecialista = new JMenu("Mostrar Especialista");
-			menuBar1.add(mnMostrarEspecialista);
-			
-			JMenu mnBuscar = new JMenu("Buscar");
-			menuBar1.add(mnBuscar);
-			
-			
-			Estilo.aplicarEstiloBasico(contentPane);
-		}
-		
-	}
-	private void abrirVentanaAnadir(String tipo) {
-	    String titulo = tipo.toLowerCase(); 
-	    if(!n.existe("anadir" + titulo)) {
-	        n.crearVentana(new Anadir(titulo));
-	        n.dispatcher("anadir"+titulo,true);
-	    }else {
-	        n.dispatcher("anadir"+titulo,true);
+    public VentanaPrincipal() {
+        
 
-	    }
-	}
-	private void abrirVentanaMostrar(String tipo) {
-	    String titulo = tipo.toLowerCase(); 
-	    if(!n.existe("mostrar" + titulo)) {
-	    	n.crearVentana(new Mostrar(titulo,user)); 
-	        n.dispatcher("mostrar"+titulo, true);
-	    }else {
-	        n.dispatcher("mostrar"+titulo, true);
+        Estilo.aplicarFuenteGlobal();
+        setTitle("principal");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setBounds(100, 100, 900, 600);
+        setMinimumSize(new Dimension(800, 500));
 
-	    }
-	}
+        addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowOpened(WindowEvent e) {
+                	actualizarUser(p,nom);
+                	actualizarMenuYBotones();
+                }
+
+                @Override
+                public void windowActivated(WindowEvent e) {
+                	actualizarUser(p,nom);
+                    actualizarMenuYBotones();
+                }
+
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    n.dispatcher("iniciosesion", true);
+                }
+            });
+
+        getContentPane().setBackground(Estilo.FONDO_CONTENIDO);
+        getContentPane().setLayout(new BorderLayout());
+
+     // Panel cabecera
+        JPanel panelCabecera = new JPanel(new BorderLayout());
+        panelCabecera.setBackground(Estilo.FONDO_PANEL_TOP);
+
+        bienvenida = new JLabel("Bienvenido, " + nom);
+        Estilo.estilizarEtiqueta(bienvenida, true);
+        bienvenida.setFont(Estilo.FUENTE_TITULO);
+        bienvenida.setForeground(Color.WHITE);
+        panelCabecera.add(bienvenida, BorderLayout.WEST);
+
+        JButton btnCerrarSesion = new JButton("Cerrar sesión");
+        Estilo.aplicarEstiloBasico(btnCerrarSesion);
+        btnCerrarSesion.setForeground(Estilo.FONDO_CONTENIDO);
+        btnCerrarSesion.setOpaque(true);
+        btnCerrarSesion.setContentAreaFilled(false);
+        btnCerrarSesion.setFocusPainted(false);
+        btnCerrarSesion.addActionListener(e -> {
+            setVisible(false);
+            n.dispatcher("iniciosesion", true);
+            dispose();
+        });
+        panelCabecera.add(btnCerrarSesion, BorderLayout.EAST);
+
+        getContentPane().add(panelCabecera, BorderLayout.NORTH);
+        // Panel central
+        getContentPane().add(crearPanelPrincipal(), BorderLayout.CENTER);
+
+        // Menú
+        menuBar = new JMenuBar();
+        menuBar.setBackground(Estilo.FONDO_CONTENIDO);
+        setJMenuBar(menuBar);
+        actualizarMenuYBotones();
+    }
+
+    public void actualizarUser(int permisos,String nombre) {
+    	p = permisos;
+        nom = nombre;
+    }
+    private JPanel crearPanelPrincipal() {
+        JPanel mainPanel = new JPanel(new GridLayout(1, 2));
+        mainPanel.setBackground(Estilo.FONDO_GENERAL);
+
+        leftPanel = new JPanel(); // ← Hacerlo atributo si quieres cambiar los botones más tarde
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        leftPanel.setBackground(Estilo.FONDO_GENERAL);
+
+        rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBackground(Estilo.FONDO_GENERAL);
+
+        ImageIcon icono = new ImageIcon("src/main/java/Img/silueta.png");
+        Image img = icono.getImage().getScaledInstance(300, 350, Image.SCALE_SMOOTH);
+        JLabel lblImagen = new JLabel(new ImageIcon(img));
+        lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
+        rightPanel.add(lblImagen, BorderLayout.CENTER);
+
+        mainPanel.add(leftPanel);
+        mainPanel.add(rightPanel);
+        return mainPanel;
+    }
+
+
+    private JButton crearBotonEstilizado(String texto) {
+        JButton boton = new JButton(texto);
+        boton.setFont(Estilo.FUENTE_BASE);
+        boton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        boton.setPreferredSize(new Dimension(220, 50));
+        boton.setMaximumSize(new Dimension(220, 50));
+        boton.setBackground(Estilo.GRIS_BOTON);
+        boton.setForeground(Estilo.TEXTO_PRIMARIO);
+        boton.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Estilo.FONDO_CONTENIDO, 1),
+            BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        boton.setFocusPainted(false);
+
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                boton.setBackground(Estilo.FONDO_GENERAL);
+                boton.setForeground(Color.WHITE);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                boton.setBackground(Estilo.GRIS_BOTON);
+                boton.setForeground(Estilo.TEXTO_PRIMARIO);
+            }
+        });
+
+        return boton;
+    }
+
+    /*public void actualizarUsuarioActivo() {
+        this.user = gs.Activo();
+        menu(tienePermiso());
+    }*/
+
+    private boolean tienePermiso() {
+        if (p == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void actualizarMenuYBotones() {
+        menuBar.removeAll();
+        leftPanel.removeAll();
+     
+
+        bienvenida.setText("Bienvenido, " + nom);
+
+        if (tienePermiso()) {
+            // Menú para admin
+            JMenu mnGestionCliente = crearMenu("Gestión Cliente");
+            JMenuItem ItemAnadir = crearItemMenu("Añadir");
+            ItemAnadir.addActionListener(e -> abrirVentanaAnadir("cliente"));
+            mnGestionCliente.add(ItemAnadir);
+
+            JMenuItem ItemMostrar = crearItemMenu("Mostrar");
+            ItemMostrar.addActionListener(e -> abrirVentanaMostrar("cliente"));
+            mnGestionCliente.add(ItemMostrar);
+            menuBar.add(mnGestionCliente);
+
+            JMenu mnGestionEspecialista = crearMenu("Gestión Especialista");
+            JMenuItem ItemAnadirE = crearItemMenu("Añadir");
+            ItemAnadirE.addActionListener(e -> abrirVentanaAnadir("especialista"));
+            mnGestionEspecialista.add(ItemAnadirE);
+
+            JMenuItem ItemMostrarE = crearItemMenu("Mostrar");
+            ItemMostrarE.addActionListener(e -> abrirVentanaMostrar("especialista"));
+            mnGestionEspecialista.add(ItemMostrarE);
+            menuBar.add(mnGestionEspecialista);
+
+            JMenu mnGestionCitas = crearMenu("Gestión Citas");
+            JMenuItem ItemAnadirC = crearItemMenu("Añadir");
+            ItemAnadirC.addActionListener(e -> abrirVentanaAnadir("solicitar"));
+            mnGestionCitas.add(ItemAnadirC);
+
+            JMenuItem ItemMostrarC = crearItemMenu("Mostrar");
+            ItemMostrarC.addActionListener(e -> abrirVentanaMostrar("solicitar"));
+            mnGestionCitas.add(ItemMostrarC);
+            menuBar.add(mnGestionCitas);
+            
+            JMenu mnGestionUsuarios = crearMenu("Gestión Usuarios");
+            JMenuItem ItemAnadirU = crearItemMenu("Añadir");
+            ItemAnadirU.addActionListener(e -> abrirVentanaAnadir("usuario"));
+            mnGestionUsuarios.add(ItemAnadirU);
+
+            JMenuItem ItemMostrarU = crearItemMenu("Mostrar");
+            ItemMostrarU.addActionListener(e -> abrirVentanaMostrar("usuario"));
+            mnGestionUsuarios.add(ItemMostrarU);
+            menuBar.add(mnGestionUsuarios);
+
+            // Botones para admin
+            JButton btnBuscar = crearBotonEstilizado("Buscar");
+            JButton btnConsultas = crearBotonEstilizado("Mostrar Consultas");
+            JButton btnRecetas = crearBotonEstilizado("Mostrar Recetas");
+
+            btnBuscar.addActionListener(e -> abrirVentanaBuscar());
+            btnConsultas.addActionListener(e -> abrirVentanaMostrar("consulta"));
+            btnRecetas.addActionListener(e -> abrirVentanaMostrar("receta"));
+
+            leftPanel.add(Box.createVerticalGlue());
+            leftPanel.add(btnBuscar);
+            leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            leftPanel.add(btnConsultas);
+            leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            leftPanel.add(btnRecetas);
+            leftPanel.add(Box.createVerticalGlue());
+
+        } else {
+            
+
+            // Botones para usuario
+            JButton btnMisCitas = crearBotonEstilizado("Mis Citas");
+            JButton btnBuscar = crearBotonEstilizado("Buscar");
+            JButton btnExtra = crearBotonEstilizado("Opción Extra");
+
+            btnMisCitas.addActionListener(e -> abrirVentanaMostrar("cita"));
+            btnBuscar.addActionListener(e -> abrirVentanaBuscar());
+            btnExtra.addActionListener(e -> JOptionPane.showMessageDialog(this, "Funcionalidad futura"));
+
+            leftPanel.add(Box.createVerticalGlue());
+            leftPanel.add(btnMisCitas);
+            leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            leftPanel.add(btnBuscar);
+            leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            leftPanel.add(btnExtra);
+            leftPanel.add(Box.createVerticalGlue());
+        }
+
+        leftPanel.revalidate();
+        leftPanel.repaint();
+        menuBar.revalidate();
+        menuBar.repaint();
+    }
+
+
+    private JMenu crearMenu(String texto) {
+        JMenu menu = new JMenu(texto);
+        menu.setFont(Estilo.FUENTE_BASE);
+        menu.setForeground(Estilo.TEXTO_PRIMARIO);
+        menu.setBackground(Estilo.FONDO_GENERAL);
+        return menu;
+    }
+
+    private JMenuItem crearItemMenu(String texto) {
+        JMenuItem item = new JMenuItem(texto);
+        item.setFont(Estilo.FUENTE_BASE);
+        item.setBackground(Estilo.FONDO_CONTENIDO);
+        item.setForeground(Estilo.TEXTO_PRIMARIO);
+        return item;
+    }
+
+    private void abrirVentanaAnadir(String tipo) {
+        String titulo = tipo.toLowerCase();
+        if (!n.existe("anadir" + titulo)) {
+            n.crearVentana(new Anadir(titulo));
+            n.dispatcher("anadir" + titulo, true);
+        } else {
+            n.dispatcher("anadir" + titulo, true);
+        }
+    }
+
+    private void abrirVentanaMostrar(String tipo) {
+        String titulo = tipo.toLowerCase();
+        if (!n.existe("mostrar" + titulo)) {
+            n.crearVentana(new Mostrar(titulo,nom));
+            n.dispatcher("mostrar" + titulo, true);
+        } else {
+            Mostrar m = (Mostrar) n.getVentana("mostrar" + titulo);
+            m.actualizarTabla();
+            n.dispatcher("mostrar" + titulo, true);
+        }
+    }
+    
+    private void abrirVentanaBuscar() {
+    	if(!n.existe("buscar")) {
+            n.crearVentana(new Buscar());
+            n.dispatcher("buscar" ,true);
+            setVisible(false);
+        } else {
+        	Buscar b= (Buscar) n.getVentana("buscar");
+            b.limpiarFormulario();
+            b.limpiarTabla();
+            b.cambiarFormulario();
+        	n.dispatcher("buscar",true);
+        	setVisible(false);
+            
+        }
+    }
 }

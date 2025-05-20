@@ -5,13 +5,7 @@ public class Dentista extends Especialista {
     private boolean realizaOperaciones;
     private String dniSupervisar;
 
-    public Dentista(String dni, String nombre, String apellidos, double sueldo, int numCon, 
-                   String tipoImplante, boolean realizaOperaciones, String dniSupervisar) {
-        super(dni, nombre, apellidos, sueldo, numCon);
-        this.tipoImplante = tipoImplante;
-        this.realizaOperaciones = realizaOperaciones;
-        this.dniSupervisar = dniSupervisar;
-    }
+  
 
     // Getters y Setters
     public String getTipoImplante() {

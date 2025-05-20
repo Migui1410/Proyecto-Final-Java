@@ -3,10 +3,14 @@ package Vista;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -22,9 +26,11 @@ public class Estilo {
     public static final Color FONDO_CONTENIDO = new Color(245, 245, 245);     // Gris más claro para campos y contenedores
     public static final Color TEXTO_PRIMARIO = new Color(40, 40, 40);          // Gris oscuro para texto
     public static final Color TEXTO_SECUNDARIO = new Color(50, 50, 50);    // Gris medio para texto secundario
-    public static final Color AZUL_ACENTO = new Color(0, 120, 255);           // Azul de acento para botones y bordes
-    public static final Color GRIS_BOTON = new Color(200, 200, 200);           // Gris oscuro para los botones
-    public static final Color GRIS_BOTON_HOVER = new Color(170, 170, 170);     // Gris más oscuro para hover
+    public static final Color GRIS_BOTON = new Color(180, 180, 180);
+    public static final Color GRIS_BOTON_HOVER = new Color(150, 150, 150);
+    public static final Color FONDO_PANEL_TOP = new Color(45, 45, 45);        // Gris oscuro
+    public static final Color FONDO_MENU = new Color(70, 70, 70);  
+    public static final Color NEGRO = new Color(10, 10, 10); 
 
     // Fuentes globales
     public static final Font FUENTE_BASE = new Font("Segoe UI", Font.PLAIN, 16); // Fuente más grande y legible
@@ -41,52 +47,24 @@ public class Estilo {
                 JLabel label = (JLabel) c;
                 label.setForeground(TEXTO_PRIMARIO);  // Texto en gris oscuro
                 label.setFont(FUENTE_BASE);
-            } else if (c instanceof JButton) {
-                JButton boton = (JButton) c;
-                boton.setFont(FUENTE_BASE);
-                boton.setForeground(TEXTO_PRIMARIO);   // Texto en gris oscuro para contraste
-                boton.setBackground(GRIS_BOTON);      // Fondo gris claro para el botón
-                boton.setFocusPainted(true);          // Mostrar borde de enfoque
-                boton.setBorder(new LineBorder(AZUL_ACENTO, 2)); // Borde azul para destacarlo
-
-                // Efecto Hover: cambiar el color de fondo al pasar el ratón
-                boton.addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent evt) {
-                        boton.setBackground(AZUL_ACENTO);  // Fondo azul brillante al pasar el ratón
-                        boton.setForeground(Color.WHITE);  // Texto blanco cuando se pasa el ratón
-                    }
-                    public void mouseExited(java.awt.event.MouseEvent evt) {
-                        boton.setBackground(GRIS_BOTON);   // Fondo gris claro cuando no se pasa el ratón
-                        boton.setForeground(TEXTO_PRIMARIO);  // Restaurar el texto en gris oscuro
-                    }
-                });
-
-                // Añadir sombra sutil para un efecto 3D
-                boton.setBorderPainted(true);
-                boton.setContentAreaFilled(false);
-                boton.setOpaque(true);
-                boton.setBackground(GRIS_BOTON);
-                boton.setFont(new Font("Segoe UI", Font.BOLD, 16));  // Fuente más grande y negrita
-                boton.setPreferredSize(new java.awt.Dimension(120, 40));  // Botón más grande para mayor impacto
-
-                // Efecto sombra sutil para darle profundidad
-                boton.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-                    protected void paintButtonPressed(java.awt.Graphics g, JComponent c) {
-                        super.paintButtonPressed(g, (AbstractButton) c);
-                        g.setColor(new Color(0, 0, 0, 40)); // Sombra sutil
-                        g.fillRoundRect(3, 3, c.getWidth() - 6, c.getHeight() - 6, 10, 10);
-                    }
-                });
             } else if (c instanceof JTextField) {
                 JTextField campo = (JTextField) c;
                 campo.setFont(FUENTE_BASE);
                 campo.setBackground(FONDO_CONTENIDO);  // Fondo gris más claro para campos de texto
                 campo.setForeground(Color.BLACK);      // Texto en negro para mejor contraste
-                campo.setBorder(new LineBorder(AZUL_ACENTO, 1));  // Borde azul para los campos de texto
+                campo.setBorder(new LineBorder(FONDO_CONTENIDO, 1));  // Borde azul para los campos de texto
             } else if (c instanceof Container) {
                 Container subContenedor = (Container) c;
                 aplicarEstiloBasico(subContenedor);  // Aplicamos recursivamente a subcontenedores
+            }else if (c instanceof JComboBox<?>) {
+                JComboBox<?> combo = (JComboBox<?>) c;
+                combo.setFont(FUENTE_BASE);
+                combo.setBackground(FONDO_CONTENIDO);
+                combo.setForeground(TEXTO_PRIMARIO);
+                combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+                combo.setBorder(new LineBorder(Color.LIGHT_GRAY));
             }
+
         }
     }
 
@@ -138,4 +116,66 @@ public class Estilo {
         header.setForeground(TEXTO_PRIMARIO);
         header.setReorderingAllowed(false);
     }
+    
+    public static void estilizarBoton(JButton boton) {
+        boton.setFont(FUENTE_BASE);
+        boton.setForeground(TEXTO_PRIMARIO);
+        boton.setBackground(GRIS_BOTON);
+        boton.setFocusPainted(true);
+        boton.setBorderPainted(true);
+        boton.setContentAreaFilled(false);
+        boton.setOpaque(true);
+        boton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        boton.setPreferredSize(new java.awt.Dimension(120, 40));
+
+        boton.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+            protected void paintButtonPressed(java.awt.Graphics g, JComponent c) {
+                super.paintButtonPressed(g, (AbstractButton) c);
+                g.setColor(new Color(0, 0, 0, 40));
+                g.fillRoundRect(3, 3, c.getWidth() - 6, c.getHeight() - 6, 10, 10);
+            }
+        });
+
+        // Añadir mouse listener solo una vez
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                boton.setBackground(GRIS_BOTON_HOVER);
+                boton.setForeground(Color.WHITE);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                boton.setBackground(GRIS_BOTON);
+                boton.setForeground(FONDO_MENU);
+            }
+        });
+    }
+    
+    public static void estilizarBotonHover(JButton boton) {
+        boton.setFont(FUENTE_BASE);
+        boton.setForeground(TEXTO_PRIMARIO);
+        boton.setBackground(GRIS_BOTON);
+        boton.setFocusPainted(false);
+        boton.setOpaque(true);
+        boton.setContentAreaFilled(true);
+        boton.setBorder(BorderFactory.createLineBorder(FONDO_CONTENIDO, 1));
+
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                boton.setBackground(GRIS_BOTON_HOVER);
+                boton.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                boton.setBackground(GRIS_BOTON);
+                boton.setForeground(TEXTO_PRIMARIO);
+            }
+        });
+
+        // Inicializa el color correctamente al crear el botón
+        boton.setBackground(GRIS_BOTON);
+        boton.setForeground(TEXTO_PRIMARIO);
+    }
+
 }

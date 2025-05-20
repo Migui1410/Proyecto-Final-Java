@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class GestionBasedeDatos {
-	static String url= "jdbc:postgresql://localhost:5432/Clinica Via Parque";
-	static String user ="postgres";
-	static String pwd = "postgres";
+	static String url= "jdbc:postgresql://localhost:5432/ClinicaViaParque";
+	public static String user ="postgres";
+	public static String pwd = "postgres";
 	public static void main(String[] args) {
 		prueba();	
 	}
