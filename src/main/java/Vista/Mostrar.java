@@ -6,12 +6,9 @@ import javax.swing.table.DefaultTableModel;
 
 import Controlador.GestionBasedeDatos;
 import Controlador.Navegador;
-import Controlador.Validacion;
-import Modelo.Usuario;
-import Modelo.Admin;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.sql.*;
 
 public class Mostrar extends JFrame {
@@ -151,9 +148,10 @@ public class Mostrar extends JFrame {
     public void permisos(String n,int p) {
     	permisos = p;
     	user = n;
+    	actualizarTabla();
     }
     // Devuelve el SQL según qué tipo de tabla mostrar
-    private String configurarModeloTabla(String item, String user,int permisos) {
+    private String configurarModeloTabla(String item) {
         switch (item.toLowerCase()) {
             case "cliente":
             return "SELECT * FROM cliente";    
@@ -197,7 +195,7 @@ public class Mostrar extends JFrame {
 
     // Refresca la tabla leyendo los datos de la BD
     public void actualizarTabla() {
-        String query = configurarModeloTabla(tituloV, user,permisos);
+        String query = configurarModeloTabla(tituloV);
         try (Connection cn = GestionBasedeDatos.prueba();
              PreparedStatement st = cn.prepareStatement(query);
              ResultSet rs = st.executeQuery()) {

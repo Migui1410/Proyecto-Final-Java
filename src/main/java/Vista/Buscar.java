@@ -45,26 +45,14 @@ public class Buscar extends JFrame {
         panelIzquierdo.setPreferredSize(new Dimension(350, 0));
         Estilo.aplicarEstiloBasico(panelIzquierdo);
 
-        // Label arriba combo
+        // Label y combo entidad
         JLabel lblSeleccion = new JLabel("Seleccione entidad:");
         lblSeleccion.setAlignmentX(Component.LEFT_ALIGNMENT);
         panelIzquierdo.add(lblSeleccion);
 
-        // Combo entidad con opciones según permisos
-        if (permisos == 1) {
-            comboEntidad = new JComboBox<>(new String[]{"cliente"});
-            comboEntidad.setEnabled(false);  // No se puede cambiar
-        } else {
-            comboEntidad = new JComboBox<>(new String[]{"cliente", "especialista", "cita"});
-        }
-
+        comboEntidad = new JComboBox<>();
         comboEntidad.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         comboEntidad.setAlignmentX(Component.LEFT_ALIGNMENT);
-        comboEntidad.addActionListener(e -> {
-            limpiarFormulario();
-            limpiarTabla();
-            cambiarFormulario();
-        });
         Estilo.aplicarEstiloBasico(comboEntidad);
         panelIzquierdo.add(Box.createVerticalStrut(5));
         panelIzquierdo.add(comboEntidad);
@@ -72,12 +60,12 @@ public class Buscar extends JFrame {
 
         // Panel del formulario
         panelFormulario = new JPanel();
-        Estilo.aplicarEstiloBasico(panelFormulario);
         panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
         panelFormulario.setAlignmentX(Component.LEFT_ALIGNMENT);
         Estilo.aplicarEstiloBasico(panelFormulario);
         panelIzquierdo.add(panelFormulario);
 
+        // Agregar panel izquierdo
         getContentPane().add(panelIzquierdo, BorderLayout.WEST);
 
         // Tabla de resultados
@@ -90,8 +78,13 @@ public class Buscar extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 10));
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        cambiarFormulario();
         Estilo.aplicarEstiloBasico(getContentPane());
+
+        // Inicializar combo y formulario
+        actualizarComboEntidad();
+
+        // Listener para cambio de entidad
+        comboEntidad.addActionListener(e -> cambiarFormulario());
     }
 
     public void cambiarFormulario() {
@@ -102,16 +95,21 @@ public class Buscar extends JFrame {
         campo2 = new JTextField(15);
         campo3 = new JTextField(15);
 
-        agregarCampo("DNI:", campo1);
-        agregarCampo("Nombre:", campo2);
+        if (tipo == null) return;  // Evita ejecutar si no hay selección
+
+        if (tipo.equals("cliente") || tipo.equals("especialista")) {
+        	agregarCampo("DNI:", campo1);
+            agregarCampo("Nombre:", campo2);
+        }
+
         if ("cliente".equals(tipo)) {
             agregarCampo("Apellidos:", campo3);
         } else if ("especialista".equals(tipo)) {
-            agregarCampo("Especialidad (nº consulta):", campo3);
+            agregarCampo("Numero consulta:", campo3);
         } else if ("cita".equals(tipo)) {
-            panelFormulario.removeAll();
-            agregarCampo("ID:", campo1);
-            agregarCampo("Fecha (yyyy-mm-dd):", campo2);
+            agregarCampo("Nombre cliente: ", campo1);
+            agregarCampo("Nombre Especialista: ", campo2);
+            agregarCampo("Fecha (yyyy-mm-dd):", campo3);
         }
 
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -123,14 +121,13 @@ public class Buscar extends JFrame {
         btnBorrar.addActionListener(e -> {
             campo1.setText("");
             campo2.setText("");
-            campo3.setText("");
+            if (campo3 != null) campo3.setText("");
             limpiarTabla();
         });
         Estilo.estilizarBoton(btnBorrar);
         panelBotones.add(btnBuscar);
         panelBotones.add(btnBorrar);
 
-        // Botón Volver en panel centrado
         JButton btnVolver = new JButton("Volver");
         Estilo.estilizarBoton(btnVolver);
         btnVolver.addActionListener(e -> {
@@ -142,7 +139,6 @@ public class Buscar extends JFrame {
         panelVolver.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         panelVolver.add(btnVolver);
 
-        // Contenedor vertical para todos los botones
         JPanel panelBotonesContainer = new JPanel();
         panelBotonesContainer.setLayout(new BoxLayout(panelBotonesContainer, BoxLayout.Y_AXIS));
         panelBotonesContainer.setOpaque(false);
@@ -161,7 +157,6 @@ public class Buscar extends JFrame {
         Estilo.aplicarEstiloBasico(contenedor);
 
         JLabel label = new JLabel(labelTexto);
-
         campo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 
         contenedor.add(label);
@@ -171,35 +166,34 @@ public class Buscar extends JFrame {
     }
 
     private void buscar(String tipo) {
-        if (permisos == 1 && !"cliente".equals(tipo)) {
-            JOptionPane.showMessageDialog(this, "No tiene permisos para buscar esta entidad.", "Permiso denegado", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         String sql = "";
         switch (tipo) {
-            case "cliente":
-                sql = "SELECT * FROM cliente WHERE dni LIKE ? AND nombre LIKE ? AND apellidos LIKE ?";
-                break;
-            case "especialista":
-                sql = "SELECT * FROM especialista WHERE dni LIKE ? AND nombre LIKE ? AND num_con::text LIKE ?";
-                break;
-            case "cita":
-                sql = "SELECT * FROM solicitar WHERE CAST(id AS TEXT) LIKE ? AND CAST(fecha AS TEXT) LIKE ?";
-                break;
-            default:
+            case "cliente" :
+            	sql = "SELECT * FROM cliente WHERE dni LIKE ? AND nombre LIKE ? AND apellidos LIKE ?";
+            	break;
+            case "especialista" :
+            	sql = "SELECT * FROM especialista WHERE dni LIKE ? AND nombre LIKE ? AND num_con::text LIKE ?";
+            	break;
+            case "cita" :
+            	sql = "SELECT cl.nombre AS \"Nombre Cliente\", esp.nombre As \"Nombre Especialista\" ,c.fecha"
+            			+ " FROM solicitar s, cita c ,cliente cl,especialista esp "
+            			+ "WHERE  dni_cliente IN (Select dni from cliente where nombre LIKE ?) "
+            			+ "AND  dni_esp IN (Select dni from especialista where nombre LIKE ?) "
+            			+ "AND s.id_cita = c.Id  AND s.dni_cliente = cl.dni AND esp.dni = s.dni_esp "
+            			+ "AND CAST(c.fecha AS TEXT) LIKE ? ";
+            	break;
+            default :
                 JOptionPane.showMessageDialog(this, "Entidad no soportada.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-        }
-
+                break;
+            
+        };
         try (Connection cn = GestionBasedeDatos.prueba();
              PreparedStatement st = cn.prepareStatement(sql)) {
 
             st.setString(1, "%" + campo1.getText().trim() + "%");
             st.setString(2, "%" + campo2.getText().trim() + "%");
-            if (!"cita".equals(tipo)) {
-                st.setString(3, "%" + campo3.getText().trim() + "%");
-            }
+            st.setString(3, "%" + campo3.getText().trim() + "%");
+            
 
             try (ResultSet rs = st.executeQuery()) {
                 ResultSetMetaData meta = rs.getMetaData();
@@ -232,8 +226,26 @@ public class Buscar extends JFrame {
         }
     }
 
+    private void actualizarComboEntidad() {
+    	Estilo.aplicarEstiloBasico(comboEntidad);
+        if (comboEntidad == null) return;
+        comboEntidad.removeAllItems();
+        if (permisos == 1) {
+            comboEntidad.addItem("cliente");
+            comboEntidad.setEnabled(false);
+        } else {
+            comboEntidad.addItem("cliente");
+            comboEntidad.addItem("especialista");
+            comboEntidad.addItem("cita");
+            comboEntidad.setEnabled(true);
+        }
+        comboEntidad.setSelectedIndex(0);
+        cambiarFormulario();  // Se actualiza el formulario según el valor seleccionado
+    }
+
     public void permisos(int p) {
         permisos = p;
+        actualizarComboEntidad();
     }
 
     public void limpiarFormulario() {

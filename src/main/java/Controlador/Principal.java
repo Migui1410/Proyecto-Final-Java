@@ -1,7 +1,5 @@
 package Controlador;
 
-import Modelo.Admin;
-import Modelo.UsuarioNormal;
 import Vista.InicioSesion;
 
 public class Principal {

@@ -4,17 +4,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.channels.FileLockInterruptionException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,15 +15,9 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
-
 import Controlador.GestionBasedeDatos;
 import Controlador.Navegador;
-import Modelo.Admin;
-import Modelo.Cliente;
-import Modelo.Usuario;
 
 public class VentanaPrincipal extends JFrame {
     private Navegador n = new Navegador();
@@ -40,7 +26,6 @@ public class VentanaPrincipal extends JFrame {
     private String nom;
     private JPanel leftPanel;
     private JPanel rightPanel;
-    private JPanel panelCabecera;
     private JLabel bienvenida;
 
     private JMenuBar menuBar;
@@ -138,14 +123,6 @@ public class VentanaPrincipal extends JFrame {
         return mainPanel;
     }
 
-
-   
-
-    /*public void actualizarUsuarioActivo() {
-        this.user = gs.Activo();
-        menu(tienePermiso());
-    }*/
-
     private boolean tienePermiso() {
         if (p == 0) {
             return true;
@@ -171,8 +148,9 @@ public class VentanaPrincipal extends JFrame {
             JMenuItem ItemMostrar = crearItemMenu("Mostrar");
             ItemMostrar.addActionListener(e -> abrirVentanaMostrar("cliente"));
             mnGestionCliente.add(ItemMostrar);
-            menuBar.add(mnGestionCliente);
-            JMenuItem mnImportar = new JMenuItem("EXPORTAR");
+            
+            
+            JMenuItem mnImportar = crearItemMenu("Exportar");
     		mnImportar.addActionListener(new ActionListener() {
     			public void actionPerformed(ActionEvent e) {
     				String ruta =  elegirRuta();
@@ -183,7 +161,7 @@ public class VentanaPrincipal extends JFrame {
     		});
     		mnGestionCliente.add(mnImportar);
     		
-    		JMenuItem mnExportar = new JMenuItem("IMPORTAR");
+    		JMenuItem mnExportar = crearItemMenu("Importar");
     		mnExportar.addActionListener(new ActionListener() {
     			public void actionPerformed(ActionEvent e) {
     				String ruta =  elegirRuta();
@@ -193,6 +171,7 @@ public class VentanaPrincipal extends JFrame {
     			}
     		});
     		mnGestionCliente.add(mnExportar);
+    		menuBar.add(mnGestionCliente);
 
             JMenu mnGestionEspecialista = crearMenu("Gestión Especialista");
             JMenuItem ItemAnadirE = crearItemMenu("Añadir");
@@ -339,8 +318,8 @@ public class VentanaPrincipal extends JFrame {
         	Buscar b= (Buscar) n.getVentana("buscar");
             b.limpiarFormulario();
             b.limpiarTabla();
-            b.cambiarFormulario();
             b.permisos(p);
+            b.cambiarFormulario();
         	n.dispatcher("buscar",true);
         	setVisible(false);
             
