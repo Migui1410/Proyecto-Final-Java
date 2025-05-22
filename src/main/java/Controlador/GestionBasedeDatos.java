@@ -10,9 +10,7 @@ public class GestionBasedeDatos {
 	static String url= "jdbc:postgresql://localhost:5432/ClinicaViaParque";
 	public static String user ="postgres";
 	public static String pwd = "postgres";
-	public static void main(String[] args) {
-		prueba();	
-	}
+	
 	
 	public static Connection prueba() {
 		Connection cn = null;

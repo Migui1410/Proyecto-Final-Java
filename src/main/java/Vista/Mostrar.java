@@ -6,6 +6,7 @@ import javax.swing.table.DefaultTableModel;
 
 import Controlador.GestionBasedeDatos;
 import Controlador.Navegador;
+import Controlador.Validacion;
 import Modelo.Usuario;
 import Modelo.Admin;
 
@@ -14,18 +15,18 @@ import java.awt.event.*;
 import java.sql.*;
 
 public class Mostrar extends JFrame {
-    private static String tituloV;
+    private String tituloV;
     private JTable tableMostrar;
-    private static DefaultTableModel model;
+    private DefaultTableModel model;
     private JPanel contentPane;
     private Navegador nav = new Navegador();
     private String user;
     private int permisos;
 
-    public Mostrar(String tipo, String nombre) {
+    public Mostrar(String tipo, String nombre,int permisos) {
         user = nombre;
         tituloV = tipo;
-
+        this.permisos = permisos;
         setTitle("mostrar" + tipo);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(650, 450);
@@ -43,8 +44,7 @@ public class Mostrar extends JFrame {
         Estilo.estilizarEtiqueta(lblTitulo, true);
         contentPane.add(lblTitulo, BorderLayout.NORTH);
 
-        // Crear modelo de tabla y tabla
-        configurarModeloTabla(tipo, nombre,permisos);
+        
         tableMostrar = new JTable(model);
         Estilo.estilizarTabla(tableMostrar);
         tableMostrar.setAutoCreateRowSorter(true);
@@ -55,10 +55,17 @@ public class Mostrar extends JFrame {
         // Panel Botones
         JPanel panelBotones = new JPanel();
         Estilo.aplicarEstiloBasico(panelBotones);
+        JButton btnVolver = new JButton("Volver");
+        panelBotones.add(btnVolver);
+        btnVolver.addActionListener(e -> {
+            setVisible(false);
+            nav.dispatcher("principal", true);
+        });
+        Estilo.estilizarBoton(btnVolver);
 
         // Botón Editar
         JButton btnEditar = new JButton("Editar");
-        Estilo.estilizarBoton(btnEditar); // Aplicar estilo aquí, justo tras crear
+        Estilo.estilizarBoton(btnEditar); 
         btnEditar.addActionListener(e -> {
             int filaSeleccionada = tableMostrar.getSelectedRow();
             if (filaSeleccionada == -1) {
@@ -138,32 +145,40 @@ public class Mostrar extends JFrame {
         panelBotones.add(btnEliminar);
 
         contentPane.add(panelBotones, BorderLayout.SOUTH);
+        actualizarTabla();
     }
 
-    // método se llama automáticamente cuando haces setVisible(true)
-    @Override
-    public void setVisible(boolean b) {
-        if (b) {
-            actualizarTabla(); // actualiza la tabla siempre que se muestra
-        }
-        super.setVisible(b); // muestra la ventana normalmente
+    public void permisos(String n,int p) {
+    	permisos = p;
+    	user = n;
     }
-
     // Devuelve el SQL según qué tipo de tabla mostrar
     private String configurarModeloTabla(String item, String user,int permisos) {
         switch (item.toLowerCase()) {
             case "cliente":
-                    return "SELECT * FROM cliente";
+            return "SELECT * FROM cliente";    
             case "especialista":
                 return "SELECT * FROM especialista";
             case "solicitar":
-                return "SELECT ci.id AS \"ID CITA\", cl.nombre AS \"Nombre Cliente\", es.nombre AS \"Nombre Especialista\", ci.fecha " +
-                        "FROM solicitar s, especialista es, cita ci, cliente cl " +
-                        "WHERE s.dni_cliente = cl.dni " +
-                        "AND s.dni_esp = es.dni " +
-                        "AND s.id_cita = ci.id ";
+            	if (permisos == 0) {
+            		return "SELECT ci.id AS \"ID CITA\", cl.nombre AS \"Nombre Cliente\", es.nombre AS \"Nombre Especialista\", ci.fecha " +
+                            "FROM solicitar s, especialista es, cita ci, cliente cl " +
+                            "WHERE s.dni_cliente = cl.dni " +
+                            "AND s.dni_esp = es.dni " +
+                            "AND s.id_cita = ci.id ";
+            	}else {
+            		System.out.println(user);
+            		return 
+            			    "SELECT ci.id AS \"ID CITA\", cl.nombre AS \"Nombre Cliente\", es.nombre AS \"Nombre Especialista\", ci.fecha " +
+            			    "FROM solicitar s, especialista es, cita ci, cliente cl " +
+            			    "WHERE s.dni_cliente = cl.dni " +
+            			    "AND s.dni_esp IN (SELECT dni FROM especialista WHERE Lower(nombre) = '" + user.toLowerCase() + "') " +
+            			    "AND s.id_cita = ci.id " +
+            			    "AND s.dni_esp = es.dni"; 
+            	}
+                
             case "receta":
-                return "SELECT medicamentos,precio,l.id AS Lesión,cli.nombre AS \"Nombre cliente\",esp.nombre AS \"Nombre especialista\"\r\n"
+                return "SELECT medicamentos,precio,l.nombre AS Lesión,cli.nombre AS \"Nombre cliente\",esp.nombre AS \"Nombre especialista\"\r\n"
                         + "from receta r,lesion l, cliente cli,especialista esp, tratar t\r\n"
                         + "WHERE r.id_lesion = t.id_lesion\r\n"
                         + "AND r.dni_cliente = t.dni_cliente\r\n"
@@ -217,130 +232,8 @@ public class Mostrar extends JFrame {
             e.printStackTrace();
         }
     }
-
     private void abrirVentanaEditar(String tipo, Object[] datos) {
-        JFrame ventanaEdicion = new JFrame("Editar " + tipo);
-        ventanaEdicion.setSize(400, 300);
-        ventanaEdicion.setLocationRelativeTo(this);
-        ventanaEdicion.setLayout(new BorderLayout());
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        JTextField[] campos = new JTextField[datos.length];
-        for (int i = 0; i < datos.length; i++) {
-            JPanel fila = new JPanel(new FlowLayout());
-            JLabel label = new JLabel(model.getColumnName(i) + ": ");
-            JTextField campo = new JTextField(20);
-            campo.setText(datos[i].toString());
-            if (tipo.equals("especialista")) {
-                if (i == datos.length - 1) {
-                    campo.setEditable(false);
-                }
-            }
-            campos[i] = campo;
-            fila.add(label);
-            fila.add(campo);
-            panel.add(fila);
-        }
-
-        ventanaEdicion.add(panel, BorderLayout.CENTER);
-
-        // Guarda el valor original de la clave primaria para buscar el registro correcto en el UPDATE
-        final String valorClaveOriginal = datos[0].toString();
-
-        JButton btnGuardar = new JButton("Guardar cambios");
-        Estilo.estilizarBoton(btnGuardar); 
-        btnGuardar.addActionListener(e -> {
-            actualizarRegistroEnBD(tipo, campos, valorClaveOriginal);
-            ventanaEdicion.dispose();
-            actualizarTabla();
-        });
-
-        ventanaEdicion.add(btnGuardar, BorderLayout.SOUTH);
-        ventanaEdicion.setVisible(true);
+        new Editar(tipo, datos, datos[0].toString(), model, this::actualizarTabla);
     }
-
-    private void actualizarRegistroEnBD(String tipo, JTextField[] campos, String claveOriginal) {
-        String tabla = tipo.toLowerCase();
-        String sql = null;
-
-        switch (tabla) {
-            case "cliente":
-                sql = "UPDATE cliente SET dni = ?, nombre = ?, apellidos = ?, fecha_nacimiento = ? WHERE dni = ?";
-                break;
-            case "especialista":
-                sql = "UPDATE especialista SET dni = ?, nombre = ?, apellidos = ?, sueldo = ?, num_con = ? WHERE dni = ?";
-                break;
-            case "cita":
-                sql = "UPDATE cita SET id = ?, fecha = ? WHERE id = ?";
-                break;
-            case "solicitar":
-                sql = "UPDATE solicitar SET id_cita = ?, dni_cliente = ?, dni_esp = ? WHERE id_cita = ?";
-                break;
-            case "usuario":
-            	sql = "UPDATE users SET nombre= ?,passwd = ?,permisos = ? Where nombre = ?";
-            	break;
-            default:
-                JOptionPane.showMessageDialog(this, "Edición no soportada para: " + tipo);
-                return;
-        }
-
-        try (Connection cn = GestionBasedeDatos.prueba();
-             PreparedStatement st = cn.prepareStatement(sql)) {
-
-            switch (tabla) {
-                case "cliente":
-                    st.setString(1, campos[0].getText()); // nuevo dni
-                    st.setString(2, campos[1].getText()); // nombre
-                    st.setString(3, campos[2].getText()); // apellidos
-                    st.setDate(4, Date.valueOf(campos[3].getText())); // fecha_nacimiento
-                    st.setString(5, claveOriginal); // dni original en WHERE
-                    break;
-
-                case "especialista":
-                    st.setString(1, campos[0].getText()); // nuevo dni
-                    st.setString(2, campos[1].getText()); // nombre
-                    st.setString(3, campos[2].getText()); // apellidos
-                    st.setBigDecimal(4, new java.math.BigDecimal(campos[3].getText())); // sueldo
-                    st.setInt(5, Integer.parseInt(campos[4].getText())); // num_con
-                    st.setString(6, claveOriginal); // dni original en WHERE
-                    break;
-
-                case "cita":
-                    st.setInt(1, Integer.parseInt(campos[0].getText())); // nuevo id
-                    st.setDate(2, Date.valueOf(campos[1].getText())); // fecha
-                    st.setInt(3, Integer.parseInt(claveOriginal)); // id original en WHERE
-                    break;
-
-                case "solicitar":
-                    st.setInt(1, Integer.parseInt(campos[0].getText())); // nuevo id_cita
-                    st.setString(2, campos[1].getText()); // dni_cliente
-                    st.setString(3, campos[2].getText()); // dni_esp
-                    st.setInt(4, Integer.parseInt(claveOriginal)); // id_cita original en WHERE
-                    break;
-                case  "usuario":
-                    st.setString(1, campos[0].getText()); // nombre
-                    st.setString(2, campos[1].getText()); // password
-                	st.setInt(3, Integer.parseInt(campos[2].getText())); // permisos
-                    st.setString(4, claveOriginal); // dni original en WHERE
-
-            }
-
-            st.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Registro actualizado correctamente.");
-
-        } catch (SQLException e) {
-            if ("23505".equals(e.getSQLState())) { // Violación de UNIQUE o PK
-                JOptionPane.showMessageDialog(this, "Error: Ya existe un registro con esa clave primaria o valor único duplicado.");
-            } else if ("23503".equals(e.getSQLState())) { // Violación de clave foránea
-                JOptionPane.showMessageDialog(this, "Error: El valor viola una restricción de clave foránea.");
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al actualizar el registro: " + e.getMessage());
-            }
-        } catch (IllegalArgumentException ie) {
-            JOptionPane.showMessageDialog(this, "Error en el formato de la fecha. Use formato yyyy-mm-dd.");
-        }
-    }
-
+    
 }

@@ -101,6 +101,8 @@ public class InicioSesion extends JFrame {
 					            nv.dispatcher("principal", true);
 					        }
 					        setVisible(false);
+					    	textFieldNombre.setText("");
+							passwordField.setText("");
 					    } else {
 					        JOptionPane.showMessageDialog(null, "Credenciales incorrectas", 
 					                "Error", JOptionPane.ERROR_MESSAGE);

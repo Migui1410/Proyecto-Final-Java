@@ -15,15 +15,18 @@ public class Buscar extends JFrame {
     private JPanel panelFormulario;
     private JTable tablaResultados;
     private DefaultTableModel modelResultados;
-    private Navegador n = new Navegador();
+    private Navegador nav = new Navegador();
+    private int permisos;
 
     private JTextField campo1, campo2, campo3;
 
-    public Buscar() {
+    public Buscar(int permisos) {
+        this.permisos = permisos;
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                n.dispatcher("principal", true);
+                nav.dispatcher("principal", true);
                 setVisible(false);
             }
         });
@@ -35,7 +38,6 @@ public class Buscar extends JFrame {
         getContentPane().setLayout(new BorderLayout(10, 10));
         Estilo.aplicarFuenteGlobal();
 
-
         // Panel izquierdo para combo y formulario
         JPanel panelIzquierdo = new JPanel();
         panelIzquierdo.setLayout(new BoxLayout(panelIzquierdo, BoxLayout.Y_AXIS));
@@ -43,14 +45,19 @@ public class Buscar extends JFrame {
         panelIzquierdo.setPreferredSize(new Dimension(350, 0));
         Estilo.aplicarEstiloBasico(panelIzquierdo);
 
-
         // Label arriba combo
         JLabel lblSeleccion = new JLabel("Seleccione entidad:");
         lblSeleccion.setAlignmentX(Component.LEFT_ALIGNMENT);
         panelIzquierdo.add(lblSeleccion);
 
-        // Combo entidad
-        comboEntidad = new JComboBox<>(new String[]{"cliente", "especialista", "cita"});
+        // Combo entidad con opciones según permisos
+        if (permisos == 1) {
+            comboEntidad = new JComboBox<>(new String[]{"cliente"});
+            comboEntidad.setEnabled(false);  // No se puede cambiar
+        } else {
+            comboEntidad = new JComboBox<>(new String[]{"cliente", "especialista", "cita"});
+        }
+
         comboEntidad.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         comboEntidad.setAlignmentX(Component.LEFT_ALIGNMENT);
         comboEntidad.addActionListener(e -> {
@@ -107,7 +114,7 @@ public class Buscar extends JFrame {
             agregarCampo("Fecha (yyyy-mm-dd):", campo2);
         }
 
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         Estilo.aplicarEstiloBasico(panelBotones);
         JButton btnBuscar = new JButton("Buscar");
         btnBuscar.addActionListener(e -> buscar(tipo));
@@ -122,9 +129,28 @@ public class Buscar extends JFrame {
         Estilo.estilizarBoton(btnBorrar);
         panelBotones.add(btnBuscar);
         panelBotones.add(btnBorrar);
-        panelFormulario.add(Box.createVerticalStrut(10));
-        panelFormulario.add(panelBotones);
 
+        // Botón Volver en panel centrado
+        JButton btnVolver = new JButton("Volver");
+        Estilo.estilizarBoton(btnVolver);
+        btnVolver.addActionListener(e -> {
+            setVisible(false);
+            nav.dispatcher("principal", true);
+        });
+        JPanel panelVolver = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelVolver.setOpaque(false);
+        panelVolver.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        panelVolver.add(btnVolver);
+
+        // Contenedor vertical para todos los botones
+        JPanel panelBotonesContainer = new JPanel();
+        panelBotonesContainer.setLayout(new BoxLayout(panelBotonesContainer, BoxLayout.Y_AXIS));
+        panelBotonesContainer.setOpaque(false);
+        panelBotonesContainer.add(panelBotones);
+        panelBotonesContainer.add(panelVolver);
+
+        panelFormulario.add(Box.createVerticalStrut(10));
+        panelFormulario.add(panelBotonesContainer);
         panelFormulario.revalidate();
         panelFormulario.repaint();
     }
@@ -133,7 +159,6 @@ public class Buscar extends JFrame {
         JPanel contenedor = new JPanel();
         contenedor.setLayout(new BoxLayout(contenedor, BoxLayout.Y_AXIS));
         Estilo.aplicarEstiloBasico(contenedor);
-
 
         JLabel label = new JLabel(labelTexto);
 
@@ -146,6 +171,11 @@ public class Buscar extends JFrame {
     }
 
     private void buscar(String tipo) {
+        if (permisos == 1 && !"cliente".equals(tipo)) {
+            JOptionPane.showMessageDialog(this, "No tiene permisos para buscar esta entidad.", "Permiso denegado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String sql = "";
         switch (tipo) {
             case "cliente":
@@ -157,6 +187,9 @@ public class Buscar extends JFrame {
             case "cita":
                 sql = "SELECT * FROM solicitar WHERE CAST(id AS TEXT) LIKE ? AND CAST(fecha AS TEXT) LIKE ?";
                 break;
+            default:
+                JOptionPane.showMessageDialog(this, "Entidad no soportada.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try (Connection cn = GestionBasedeDatos.prueba();
@@ -197,6 +230,10 @@ public class Buscar extends JFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error al realizar la búsqueda.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public void permisos(int p) {
+        permisos = p;
     }
 
     public void limpiarFormulario() {

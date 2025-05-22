@@ -136,7 +136,6 @@ public class Estilo {
             }
         });
 
-        // Añadir mouse listener solo una vez
         boton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 boton.setBackground(GRIS_BOTON_HOVER);

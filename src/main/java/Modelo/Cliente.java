@@ -3,6 +3,8 @@ package Modelo;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 
 public class Cliente {
     private String dni;
@@ -41,6 +43,8 @@ public class Cliente {
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fecha_nacimiento = fechaNacimiento;
     }
+
+
 }
 
     
