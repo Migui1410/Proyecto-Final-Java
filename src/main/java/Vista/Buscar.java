@@ -69,7 +69,12 @@ public class Buscar extends JFrame {
         getContentPane().add(panelIzquierdo, BorderLayout.WEST);
 
         // Tabla de resultados
-        modelResultados = new DefaultTableModel();
+        modelResultados = new DefaultTableModel() {
+        	@Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tablaResultados = new JTable(modelResultados);
         tablaResultados.setFillsViewportHeight(true);
         Estilo.estilizarTabla(tablaResultados);

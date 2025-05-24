@@ -24,6 +24,7 @@ public class Anadir extends JFrame {
     private Validacion vl = new Validacion();
     private int permisos;
     private String user;
+    private JComboBox<String> comboTipoEspecialista;
 
     private String tituloActual;   // Guardamos el título para reconstruir el formulario al actualizar
 
@@ -114,6 +115,20 @@ public class Anadir extends JFrame {
 
                 tf4 = crearCampo(panel, "Sueldo");
                 vl.limitarASoloNumeros(tf4, 6);
+             // Nuevo JComboBox para el tipo de especialista
+                comboTipoEspecialista = new JComboBox<>();
+                comboTipoEspecialista.addItem("Fisio");
+                comboTipoEspecialista.addItem("Dentista");
+                comboTipoEspecialista.addItem("Podologo");
+
+                JPanel panelTipo = new JPanel(new BorderLayout(5, 5));
+                panelTipo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+                JLabel lblTipo = new JLabel("Tipo de Especialista:");
+                panelTipo.add(lblTipo, BorderLayout.WEST);
+                panelTipo.add(comboTipoEspecialista, BorderLayout.CENTER);
+                panelTipo.setBackground(new Color(240, 248, 255));
+                panel.add(panelTipo);
+                panel.add(Box.createVerticalStrut(10));
 
                 JTextField tfConsulta = crearCampo(panel, "Nombre de la Consulta");
                 this.tfHora = tfConsulta;
@@ -245,6 +260,30 @@ public class Anadir extends JFrame {
                     psEsp.setInt(5, numero);
                     psEsp.executeUpdate();
                     psEsp.close();
+                    
+                 // inserta en la tabla hija según el tipo elegido
+                    String tipoSeleccionado = (String) comboTipoEspecialista.getSelectedItem();
+                    String dniEspecialista = tf1.getText();
+
+                    String sqlHijo = "";
+                    switch (tipoSeleccionado.toLowerCase()) {
+                        case "fisio":
+                            sqlHijo = "INSERT INTO fisio (dni_esp) VALUES (?)";
+                            break;
+                        case "dentista":
+                            sqlHijo = "INSERT INTO dentista (dni_esp) VALUES (?)";
+                            break;
+                        case "podologo":
+                            sqlHijo = "INSERT INTO podologo (dni_esp) VALUES (?)";
+                            break;
+                        default:
+                            throw new Exception("Tipo de especialista desconocido");
+                    }
+
+                    PreparedStatement psHijo = conexion.prepareStatement(sqlHijo);
+                    psHijo.setString(1, dniEspecialista);
+                    psHijo.executeUpdate();
+                    psHijo.close();
                     break;
 
                 case "solicitar":
@@ -360,7 +399,7 @@ public class Anadir extends JFrame {
         if (tf3 != null) tf3.setText("");
         if (tf4 != null) tf4.setText("");
         if (tfFecha != null) tfFecha.setText("");
-        if (tfHora != null && !tituloActual.equalsIgnoreCase("especialista")) tfHora.setText("");
+        if (tfHora != null) tfHora.setText("");
         if (comboEspecialista != null) comboEspecialista.setSelectedIndex(-1);
     }
 

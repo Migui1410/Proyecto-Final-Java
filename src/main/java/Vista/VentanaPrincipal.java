@@ -148,31 +148,8 @@ public class VentanaPrincipal extends JFrame {
             JMenuItem ItemMostrar = crearItemMenu("Mostrar");
             ItemMostrar.addActionListener(e -> abrirVentanaMostrar("cliente"));
             mnGestionCliente.add(ItemMostrar);
+            menuBar.add(mnGestionCliente);
             
-            
-            JMenuItem mnImportar = crearItemMenu("Exportar");
-    		mnImportar.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent e) {
-    				String ruta =  elegirRuta();
-    				if(ruta != null) {
-    					guardarDatos(ruta);
-    				}
-    			}
-    		});
-    		mnGestionCliente.add(mnImportar);
-    		
-    		JMenuItem mnExportar = crearItemMenu("Importar");
-    		mnExportar.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent e) {
-    				String ruta =  elegirRuta();
-    				if(ruta != null) {
-    					cargarDatos(ruta);
-    				}
-    			}
-    		});
-    		mnGestionCliente.add(mnExportar);
-    		menuBar.add(mnGestionCliente);
-
             JMenu mnGestionEspecialista = crearMenu("Gestión Especialista");
             JMenuItem ItemAnadirE = crearItemMenu("Añadir");
             ItemAnadirE.addActionListener(e -> abrirVentanaAnadir("especialista"));
@@ -182,6 +159,26 @@ public class VentanaPrincipal extends JFrame {
             ItemMostrarE.addActionListener(e -> abrirVentanaMostrar("especialista"));
             mnGestionEspecialista.add(ItemMostrarE);
             menuBar.add(mnGestionEspecialista);
+            
+            JMenuItem mnImportar = crearItemMenu("Importar");
+    		mnImportar.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent e) {
+    				String ruta =  elegirRuta();
+    				if(ruta != null) {
+    					cargarDatos(ruta);
+    				}
+    			}
+    		});
+    		mnGestionEspecialista.add(mnImportar);
+    		
+    		JMenuItem mnExportar = crearItemMenu("Exportar");
+    		mnExportar.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent e) {
+    					SelectorTipo();
+    			}
+    		});
+    		mnGestionEspecialista.add(mnExportar);
+    		menuBar.add(mnGestionEspecialista);
 
             JMenu mnGestionCitas = crearMenu("Gestión Citas");
             JMenuItem ItemAnadirC = crearItemMenu("Añadir");
@@ -303,7 +300,11 @@ public class VentanaPrincipal extends JFrame {
             n.dispatcher("mostrar" + titulo, true);
         } else {
             Mostrar m = (Mostrar) n.getVentana("mostrar" + titulo);
-            m.actualizarTabla();
+            if (tipo.equalsIgnoreCase("especialista")) {
+	            m.actualizarTablaEspecialistaConTipo();
+	        } else {
+	            m.actualizarTabla();
+	        }
             m.permisos(nom,p);
             n.dispatcher("mostrar" + titulo, true);
         }
@@ -327,7 +328,7 @@ public class VentanaPrincipal extends JFrame {
     }
     
     protected String elegirRuta() {
-		File f = new File("C:\\Users\\f.solbesvercher\\eclipse_GUI\\EJEMPLO_JTABLE");
+		File f = new File("C:");
 		JFileChooser j = new JFileChooser(f);
 		j.setAcceptAllFileFilterUsed(false);
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("archivos txt", "txt");
@@ -341,49 +342,134 @@ public class VentanaPrincipal extends JFrame {
 		}
 	}
     
-    
-    protected void guardarDatos(String ruta) {
-        try (Connection conn = GestionBasedeDatos.prueba();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente");
-             ResultSet rs = stmt.executeQuery();
-             BufferedWriter bw = new BufferedWriter(new FileWriter(ruta))) {
 
-            ResultSetMetaData meta = rs.getMetaData();
-            int columnas = meta.getColumnCount();
+    protected void SelectorTipo() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Guardar como");
 
-            // Escribir encabezados (nombres de columnas)
-            for (int i = 1; i <= columnas; i++) {
-                bw.write(meta.getColumnName(i));
-                if (i < columnas) bw.write(",");
+        String[] formatos = { "txt", "js" };
+        JComboBox<String> formatoCombo = new JComboBox<>(formatos);
+
+        // Usar panel
+        JPanel panelFormato = new JPanel();
+        panelFormato.add(new JLabel("Formato:"));
+        panelFormato.add(formatoCombo);
+        fileChooser.setAccessory(panelFormato);
+
+        int seleccion = fileChooser.showSaveDialog(null);
+
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            File archivo = fileChooser.getSelectedFile();
+            String formatoElegido = (String) formatoCombo.getSelectedItem();
+
+            String ruta = archivo.getAbsolutePath();
+            if (!ruta.endsWith("." + formatoElegido)) {
+                ruta += "." + formatoElegido;
             }
-            bw.newLine();
 
-            // Escribir filas de datos
-            while (rs.next()) {
-                for (int i = 1; i <= columnas; i++) {
-                    String valor = rs.getString(i);
-                    if (valor != null) {
-                        // Escapar comillas dobles
-                        valor = valor.replace("\"", "\"\"");
-                        // Agregar comillas si contiene coma o salto de línea
-                        if (valor.contains(",") || valor.contains("\n")) {
-                            valor = "\"" + valor + "\"";
+            guardarDatos(ruta, formatoElegido);
+        }
+    }
+    
+    protected void guardarDatos(String ruta, String formato) {
+        try (
+            Connection conn = GestionBasedeDatos.prueba();
+        ) {
+            if (formato.equalsIgnoreCase("txt")) {
+                try (
+                    PreparedStatement stmt = conn.prepareStatement("SELECT * FROM especialista");
+                    ResultSet rs = stmt.executeQuery();
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(ruta));
+                ) {
+                    ResultSetMetaData meta = rs.getMetaData();
+                    int columnas = meta.getColumnCount();
+
+                    // Escribir encabezados
+                    for (int i = 1; i <= columnas; i++) {
+                        bw.write(meta.getColumnName(i));
+                        if (i < columnas) bw.write(",");
+                    }
+                    bw.newLine();
+
+                    // Escribir datos fila por fila
+                    while (rs.next()) {
+                        for (int i = 1; i <= columnas; i++) {
+                            String valor = rs.getString(i);
+                            if (valor != null) {
+                                valor = valor.replace("\"", "\"\"");
+                                if (valor.contains(",") || valor.contains("\n")) {
+                                    valor = "\"" + valor + "\"";
+                                }
+                            }
+                            bw.write(valor != null ? valor : "");
+                            if (i < columnas) bw.write(",");
+                        }
+                        bw.newLine();
+                    }
+                }
+
+            } else if (formato.equalsIgnoreCase("js")) {
+                String[] tipos = {"fisio", "dentista", "podologo"};
+                String[] etiquetas = {"Fisio", "Dentista", "Podologo"};
+                StringBuilder json = new StringBuilder();
+                json.append("const coleccion = [\n");
+
+                boolean hayDatos = false; // para saber si escribimos algún objeto
+
+                for (int j = 0; j < tipos.length; j++) {
+                    String tipo = tipos[j];
+                    String etiqueta = etiquetas[j];
+
+                    String sql = "SELECT e.* FROM especialista e, " + tipo + " t WHERE e.dni = t.dni_esp";
+
+                    try (
+                        PreparedStatement stmt = conn.prepareStatement(sql);
+                        ResultSet rs = stmt.executeQuery();
+                    ) {
+                        ResultSetMetaData meta = rs.getMetaData();
+                        int columnas = meta.getColumnCount();
+
+                        while (rs.next()) {
+                            hayDatos = true;
+                            json.append("  {\n");
+                            for (int i = 1; i <= columnas; i++) {
+                                String nombreColumna = meta.getColumnName(i);
+                                String valor = rs.getString(i);
+                                json.append("    \"").append(nombreColumna).append("\": \"")
+                                    .append(valor != null ? valor : "").append("\",\n");
+                            }
+                            // Añadir el campo tipo_especialista
+                            json.append("    \"tipo_especialista\": \"").append(etiqueta).append("\"\n");
+                            json.append("  },\n");
                         }
                     }
-                    bw.write(valor != null ? valor : "");
-                    if (i < columnas) bw.write(",");
                 }
-                bw.newLine();
+
+                if (hayDatos) {
+                    // Quitar última coma y salto de línea
+                    json.setLength(json.length() - 2);
+                    json.append("\n");
+                }
+                json.append("];");
+
+                // Guardar archivo .js
+                String rutaJs = ruta.replaceAll("\\.txt$", ".js");
+                try (BufferedWriter jsonWriter = new BufferedWriter(new FileWriter(rutaJs))) {
+                    jsonWriter.write(json.toString());
+                }
+
+            } else {
+                JOptionPane.showMessageDialog(null, "Formato no válido. Usa 'txt' o 'js'.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
-            JOptionPane.showMessageDialog(this, "Clientes exportados correctamente como texto", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Datos exportados correctamente en formato " + formato.toUpperCase(), "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al guardar datos", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error al guardar datos", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
 
 		
 		
@@ -401,7 +487,7 @@ public class VentanaPrincipal extends JFrame {
             br.readLine();
 
             while ((linea = br.readLine()) != null) {
-                String[] datos = parseCSVLine(linea);
+                String[] datos = estiloTxt(linea);
                 if (datos.length == 4) {
                     stmt.setString(1, datos[0]);
                     stmt.setString(2, datos[1]);
@@ -421,7 +507,7 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    private String[] parseCSVLine(String linea) {
+    private String[] estiloTxt(String linea) {
         ArrayList<String> campos = new ArrayList<>(); // Lista para almacenar los campos extraídos
         StringBuilder campo = new StringBuilder(); // Para construir cada campo carácter por carácter
         boolean enComillas = false; // Indica si estamos dentro de comillas dobles
